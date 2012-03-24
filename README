@@ -1,2 +1,4 @@
 Absence reporting Play application
 =====================================
+curl tests
+curl --header "Content-type: application/json" --request POST --data '{"id":-1,"description":"Parentalleave","start":12345,"end":123456}' http://localhost:9000/jsonNew
