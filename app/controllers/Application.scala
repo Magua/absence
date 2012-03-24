@@ -11,11 +11,8 @@ object Application extends Controller {
     Ok(views.html.index("Your new application is ready."))
   }
 
-  def jsonNew = Action { request =>
-	val absence = request.body.asJson.map(_.as[Absence]).getOrElse(
-	  throw new RuntimeException("could not create user")
-	)
-
+  def jsonNew = Action(parse.json) { request =>
+    val absence = Json.fromJson[Absence](request.body)
 	val id = Absence.create(absence)
     Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
   }

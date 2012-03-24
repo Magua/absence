@@ -11,12 +11,14 @@ class ApplicationJsonApiTest extends Specification {
 	"create, list and delete an Absence entry" in {
 	  running(FakeApplication()) {
 	    val requestJson = Json.parse("""{"description":"Parental leave","start":12345,"end":123456}""")
-	    val Some(result) = routeAndCall(FakeRequest(POST, "/jsonNew", FakeHeaders(), requestJson))
+	    val Some(result) = routeAndCall(FakeRequest(POST, "/jsonNew", FakeHeaders(Map("Content-type" -> Seq("application/json"))), requestJson))
+	    println(result)
+	    "string" must beEqualTo("string")
 	    contentType(result) must beSome("application/json")
 	    val content = new String(contentAsBytes(result))
-	    val jsonResponse = Json.parse(content)
 	    println(content)
-	    (jsonResponse \ "rc").as[Long] must beEqualTo(0)
+	    val jsonResponse = Json.parse(content)
+	    (jsonResponse \ "rc").as[Int] must beEqualTo(0)
 	  }
 	}
 }
