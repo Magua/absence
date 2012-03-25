@@ -1,0 +1,59 @@
+@(sessionId: String)
+@main("Web Socket Test Page") {
+    
+<script type="text/javascript" charset="utf-8">
+    
+        $(function() {
+            
+            var receiveEvent = function(event) {
+	            console.log(event)        
+                var data = JSON.parse(event.data)
+                
+                // Handle errors
+                if(data.error) {
+                    chatSocket.close()
+                    return
+                }
+            
+            }
+            
+            var onopen = function() {
+            	console.log("connected")
+            }
+           
+            var sendMessage = function(endpoint, jsonString) {
+            	console.log("sending to: " + endpoint + " -> " + jsonString)
+            	var result = $.ajax({
+            		  type: "POST",
+            		  contentType: "application/json",
+            		  url: endpoint,
+            		  data: jsonString})
+            	console.log("synchronous response: " + JSON.stringify(result))
+            	return result
+            }
+            
+			var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+            var chatSocket = new WS("ws://localhost:9000/connect/@sessionId")
+            chatSocket.onmessage = receiveEvent
+            chatSocket.onopen = onopen
+            
+			alert($("#endpoint").val())
+        	$("#sendButton").click(function() { 
+        		var endpoint = $("#endpoint").val()
+        		var json = $("#json").val()
+        		sendMessage(endpoint, json)
+        	});
+        })
+    
+    </script>
+    <select id="endpoint">
+     <option value="/jsonNew">/jsonNew</option>
+     <option value="/jsonAll">/jsonNAll</option>
+    </select>
+    <textarea cols="80" id="json">{"description":"whatever","start":21,"end":895043}</textarea>
+    
+    <button id="sendButton">Send</button>
+    <textarea>{"description":"whatever","start":4321,"end":895043}
+    </textarea>
+    <div id="log"></div>
+}

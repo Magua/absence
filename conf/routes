@@ -4,6 +4,10 @@
 
 # Home page
 GET     /                           controllers.Application.index
+GET     /wsTest                     controllers.Application.wsTest
+
+# WebSocket
+GET     /connect/:sessionId         controllers.Application.connect(sessionId: String)
 
 #JSON
 POST		/jsonNew				controllers.Application.jsonNew
