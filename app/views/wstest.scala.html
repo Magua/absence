@@ -37,7 +37,6 @@
             chatSocket.onmessage = receiveEvent
             chatSocket.onopen = onopen
             
-			alert($("#endpoint").val())
         	$("#sendButton").click(function() { 
         		var endpoint = $("#endpoint").val()
         		var json = $("#json").val()

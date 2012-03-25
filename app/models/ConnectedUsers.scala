@@ -44,41 +44,37 @@ class ConnectedUsers extends Actor {
       // Create an Enumerator to write to this socket
       val channel = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin())
       users = users + (sessionId -> channel)
-
+      println("adding session " + sessionId)
       sender ! Connected(channel)
     }
 
     case NotifyJoin() => {
-      notifyAll("join", "has entered the room")
     }
 
-    case Talk(text) => {
-      println("talk {0}", text)
-      notifyAll("talk", text)
-    }
 
     case Quit() => {
-      notifyAll("quit", "has leaved the room")
     }
-    
-    case Absence(id, description, from, to) => {
-      val id = Absence.create(Absence(-1, description, from, to))
+    case GetAllAbsence(sessionId) => {
+      notify(sessionId, Json.toJson(Absence.all()))
+    }
+    case CreateNewAbsence(sessionId, a) => {
+      val id = Absence.create(Absence(-1, a.description, a.start, a.end))
       println("new absence created with id: ", id)
-      
+      notifyAll(Json.toJson(Absence(id, a.description, a.start, a.end)))
     }
 
   }
-  def notify(sessionId: String, message: JsObject) {
+  def notify(sessionId: String, message: JsValue) {
     val option = users.get(sessionId)
     if (option.isDefined) {
+      println("session found notifying")
       option.get.push(message)
     }
+    else {
+      println("session NOT found " + sessionId)
+    }
   }
-  def notifyAll(kind: String, text: String) {
-    val msg = JsObject(
-      Seq(
-        "kind" -> JsString(kind),
-        "message" -> JsString(text)))
+  def notifyAll(msg: JsValue) {
     users.foreach {
       case (_, channel) => channel.push(msg)
     }
@@ -86,8 +82,8 @@ class ConnectedUsers extends Actor {
 }
 case class Join(sessionId: String)
 case class GetAllAbsence(sessionId: String)
+case class CreateNewAbsence(sessionId: String, abcense: Absence)
 case class Quit()
-case class Talk(text: String)
 case class NotifyJoin()
 
 case class Connected(enumerator: Enumerator[JsValue])

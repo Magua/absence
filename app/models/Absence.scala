@@ -24,12 +24,16 @@ object Absence {
       "start" -> JsNumber(a.start),
       "end" -> JsNumber(a.end)))
   }
-  def create(absence: Absence) {
+  def create(absence: Absence): Long = {
     DB.withConnection { implicit c =>
       SQL("insert into absence (description, start, end) values ({description}, {start}, {end})").on(
         'description -> absence.description,
         'start -> absence.start,
         'end -> absence.end).executeUpdate()
+      SQL("SELECT MAX(id) from absence")().collect {
+        case Row(id: Int) => id
+      }.head
+          
     }
   }
   def all(): List[Absence] = DB.withConnection { implicit c =>
