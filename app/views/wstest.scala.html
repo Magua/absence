@@ -27,8 +27,9 @@
             		  type: "POST",
             		  contentType: "application/json",
             		  url: endpoint,
+            		  async: false,
             		  data: jsonString})
-            	console.log("synchronous response: " + JSON.stringify(result))
+            	console.log("synchronous response: " + result.responseText)
             	return result
             }
             
