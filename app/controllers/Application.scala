@@ -3,11 +3,13 @@ package controllers
 import play.api._
 import play.api.mvc._
 import models.Absence
+import models.User
 import play.api.libs.json.Json
 import play.api.libs.json.JsValue
 import models.ConnectedUsers
 import models.GetAllAbsence
 import models.CreateNewAbsence
+import models.CreateNewUser
 
 object Application extends Controller {
   def newSessionId(): String = {
@@ -22,6 +24,11 @@ object Application extends Controller {
     		request.session + ("uuid" -> sessionId))
   }
 
+  def jsonNewUser = Action(parse.json) { request =>
+  val user = Json.fromJson[User](request.body)
+  ConnectedUsers.connectedUsersActor ! CreateNewUser(request.session("uuid"), user)
+  Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
+  }
   def jsonNew = Action(parse.json) { request =>
     val absence = Json.fromJson[Absence](request.body)
     ConnectedUsers.connectedUsersActor ! CreateNewAbsence(request.session("uuid"), absence)
