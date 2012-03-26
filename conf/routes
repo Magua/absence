@@ -3,7 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.index
+GET     /                           controllers.Application.wsTest
 GET     /wsTest                     controllers.Application.wsTest
 
 # WebSocket
@@ -13,6 +13,7 @@ GET     /connect/:sessionId         controllers.Application.connect(sessionId: S
 POST		/jsonNew				controllers.Application.jsonNew
 POST		/jsonNewUser			controllers.Application.jsonNewUser
 POST		/jsonAll				controllers.Application.jsonAll
+POST		/jsonAllUsers			controllers.Application.jsonAllUsers
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

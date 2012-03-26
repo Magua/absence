@@ -10,35 +10,35 @@ import models.ConnectedUsers
 import models.GetAllAbsence
 import models.CreateNewAbsence
 import models.CreateNewUser
+import models.GetAllUsers
 
 object Application extends Controller {
   def newSessionId(): String = {
-   	java.util.UUID.randomUUID().toString()
+    java.util.UUID.randomUUID().toString()
   }
-  def index = Action { request =>
-    Ok(views.html.index("Your new application is ready."))
-  }
+  def jsonOk() = Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
   def wsTest() = Action { request =>
     val sessionId = newSessionId()
-    Ok(views.html.wstest(sessionId)).withSession(
-    		request.session + ("uuid" -> sessionId))
+    Ok(views.html.wstest(sessionId)).withSession(request.session + ("uuid" -> sessionId))
   }
-
   def jsonNewUser = Action(parse.json) { request =>
-  val user = Json.fromJson[User](request.body)
-  ConnectedUsers.connectedUsersActor ! CreateNewUser(request.session("uuid"), user)
-  Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
+    val user = Json.fromJson[User](request.body)
+    ConnectedUsers.connectedUsersActor ! CreateNewUser(request.session("uuid"), user)
+    jsonOk()
+  }
+  def jsonAllUsers = Action(parse.json) { request =>
+    ConnectedUsers.connectedUsersActor ! GetAllUsers(request.session("uuid"))
+    jsonOk()
   }
   def jsonNew = Action(parse.json) { request =>
     val absence = Json.fromJson[Absence](request.body)
     ConnectedUsers.connectedUsersActor ! CreateNewAbsence(request.session("uuid"), absence)
-    Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
+    jsonOk()
   }
   def jsonAll = Action(parse.json) { request =>
     ConnectedUsers.connectedUsersActor ! GetAllAbsence(request.session("uuid"))
-    Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
+    jsonOk()
   }
-
   def connect(sessionId: String) = WebSocket.async[JsValue] { request =>
     println("connect ws")
     ConnectedUsers.add(sessionId)

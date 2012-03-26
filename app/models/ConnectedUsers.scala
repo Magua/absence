@@ -56,6 +56,9 @@ class ConnectedUsers extends Actor {
     case GetAllAbsence(sessionId) => {
       notify(sessionId, Json.toJson(Absence.all()))
     }
+    case GetAllUsers(sessionId) => {
+    	notify(sessionId, Json.toJson(User.all()))
+    }
     case CreateNewAbsence(sessionId, a) => {
       val id = Absence.create(Absence(-1, a.userId, a.description, a.start, a.end))
       println("new Absense created with id: ", id)
@@ -85,6 +88,7 @@ class ConnectedUsers extends Actor {
 }
 case class Join(sessionId: String)
 case class GetAllAbsence(sessionId: String)
+case class GetAllUsers(sessionId: String)
 case class CreateNewAbsence(sessionId: String, abcense: Absence)
 case class CreateNewUser(sessionId: String, u: User)
 case class Quit()

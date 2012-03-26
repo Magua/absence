@@ -4,11 +4,15 @@
 <script type="text/javascript" charset="utf-8">
     
         $(function() {
+          
+            var listAllAbsenceRequest = {
+            		
+            }
             
             var receiveEvent = function(event) {
 	            console.log(event)        
-                var data = JSON.parse(event.data)
-                
+                var data = event.data
+                $("#log").append("<div>" + data + "</div>")
                 // Handle errors
                 if(data.error) {
                     chatSocket.close()
@@ -21,7 +25,8 @@
             	console.log("connected")
             }
            
-            var sendMessage = function(endpoint, jsonString) {
+            var sendMessage = function(endpoint, json) {
+            	var jsonString = JSON.stringify(json)
             	console.log("sending to: " + endpoint + " -> " + jsonString)
             	var result = $.ajax({
             		  type: "POST",
@@ -38,23 +43,56 @@
             chatSocket.onmessage = receiveEvent
             chatSocket.onopen = onopen
             
-        	$("#sendButton").click(function() { 
-        		var endpoint = $("#endpoint").val()
-        		var json = $("#json").val()
-        		sendMessage(endpoint, json)
+        	$("#newUserRequestButton").click(function() {
+                var newUserRequest = {
+                    	name: $("#newUserRequestName").val()
+                }
+        		var endpoint = $("#newUserRequestEndpoint").val()
+        		sendMessage(endpoint, newUserRequest)
+        	});
+        	$("#allUsersRequestButton").click(function() { 
+				var allUsersRequest = {}
+        		var endpoint = $("#allUsersRequestEndpoint").val()
+        		sendMessage(endpoint, allUsersRequest)
+        	});
+        	$("#allAbsenceRequestButton").click(function() { 
+				var allAbsenceRequest = {}
+        		var endpoint = $("#allAbsenceRequestEndpoint").val()
+        		sendMessage(endpoint, allAbsenceRequest)
+        	});
+        	$("#newAbsenceRequestButton").click(function() {
+        		var newAbsenceRequest = {
+                		userId: parseInt($("#newAbsenceRequestUserId").val()),
+                		description: $("#newAbsenceRequestDescription").val(),
+                		start: parseInt($("#newAbsenceRequestStart").val()),
+                		end: parseInt($("#newAbsenceRequestEnd").val())
+                }
+        		var endpoint = $("#newAbsenceRequestEndpoint").val()
+        		sendMessage(endpoint, newAbsenceRequest)
         	});
         })
     
     </script>
-    <select id="endpoint">
-     <option value="/jsonNewUser">/jsonNewUser</option>
-     <option value="/jsonNew">/jsonNew</option>
-     <option value="/jsonAll">/jsonNAll</option>
-    </select>
-    <textarea cols="80" id="json">{"description":"whatever","start":21,"end":895043}</textarea>
-    
-    <button id="sendButton">Send</button>
-    <textarea>{"description":"whatever","start":4321,"end":895043}
-    </textarea>
+    <div id="newUserRequestDiv"  style=" border : 2px dotted red">
+    	<div>Endpoint: <input type="text" id="newUserRequestEndpoint" value="/jsonNewUser"></div>
+    	<div>Name: <input type="text" id="newUserRequestName"></div>
+    	<button id="newUserRequestButton">Send</button>
+    </div>
+    <div id="allUsersRequestDiv"  style=" border : 2px dotted pink">
+    	<div>Endpoint: <input type="text" id="allUsersRequestEndpoint" value="/jsonAllUsers"></div>
+    	<button id="allUsersRequestButton">Send</button>
+    </div>
+    <div id="newAbsenceRequestDiv"  style=" border : 2px dotted blue">
+    	<div>Endpoint: <input type="text" id="newAbsenceRequestEndpoint" value="/jsonNew"></div>
+    	<div>UserId: <input type="text" id="newAbsenceRequestUserId"></div>
+    	<div>Description: <input type="text" id="newAbsenceRequestDescription"></div>
+    	<div>Start: <input type="text" id="newAbsenceRequestStart"></div>
+    	<div>End: <input type="text" id="newAbsenceRequestEnd"></div>
+    	<button id="newAbsenceRequestButton">Send</button>
+    </div>
+    <div id="allAbsenceRequestDiv"  style=" border : 2px dotted green">
+    	<div>Endpoint: <input type="text" id="allAbsenceRequestEndpoint" value="/jsonAll"></div>
+    	<button id="allAbsenceRequestButton">Send</button>
+    </div>
     <div id="log"></div>
 }
