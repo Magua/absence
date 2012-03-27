@@ -39,8 +39,7 @@
             }
             
 			var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-			alert(location.hostname + ":" + location.port)
-            var chatSocket = new WS("ws://" + location.hostname + ":" + location.port + "/connect/@sessionId")
+            var chatSocket = new WS("ws://localhost:9000/connect/@sessionId")
             chatSocket.onmessage = receiveEvent
             chatSocket.onopen = onopen
             
