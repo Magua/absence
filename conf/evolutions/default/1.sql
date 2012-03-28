@@ -2,6 +2,13 @@
  
 # --- !Ups
 
+CREATE SEQUENCE sprint_id_seq;
+CREATE TABLE sprint (
+    id integer NOT NULL DEFAULT nextval('sprint_id_seq'),
+    days integer NOT NULL,
+    PRIMARY KEY (id)
+);
+
 CREATE SEQUENCE user_id_seq;
 CREATE TABLE user (
     id integer NOT NULL DEFAULT nextval('user_id_seq'),
