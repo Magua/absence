@@ -1,1 +1,1 @@
-web: target/start -Dhttp.port=$PORT -DapplyEvolutions.default=true -Dorg.h2.Driver -Ddb.default.url=$DATABASE_URL
+web: target/start -Dhttp.port=$PORT -DapplyEvolutions.default=true -Dorg.h2.Driver -Ddb.default.url=jdbc:h2:mem:play
