@@ -29,6 +29,12 @@ CREATE TABLE absence (
 );
  
 # --- !Downs
+
+DROP TABLE sprint;
+DROP SEQUENCE sprint_id_seq;
+
+DROP TABLE user;
+DROP SEQUENCE user_id_seq;
  
 DROP TABLE absence;
 DROP SEQUENCE absence_id_seq;
