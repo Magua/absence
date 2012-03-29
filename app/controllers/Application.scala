@@ -40,7 +40,7 @@ object Application extends Controller {
     jsonOk()
   }
   def connect(sessionId: String) = WebSocket.async[JsValue] { request =>
-    println("connect ws")
+    println("connect ws, sessionId:" + sessionId)
     ConnectedUsers.add(sessionId)
   }
 }
