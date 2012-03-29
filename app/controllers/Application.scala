@@ -11,6 +11,7 @@ import models.GetAllAbsence
 import models.CreateNewAbsence
 import models.CreateNewUser
 import models.GetAllUsers
+import Play.current
 
 object Application extends Controller {
   def newSessionId(): String = {
@@ -18,8 +19,9 @@ object Application extends Controller {
   }
   def jsonOk() = Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
   def wsTest() = Action { request =>
+    val webSocketPort = current.configuration.getString("web.socket.port").getOrElse("900")
     val sessionId = newSessionId()
-    Ok(views.html.wstest(sessionId)).withSession(request.session + ("uuid" -> sessionId))
+    Ok(views.html.wstest(webSocketPort, sessionId)).withSession(request.session + ("uuid" -> sessionId))
   }
   def jsonNewUser = Action(parse.json) { request =>
     val user = Json.fromJson[User](request.body)
