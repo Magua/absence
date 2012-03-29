@@ -21,7 +21,6 @@ object ConnectedUsers {
     (connectedUsersActor ? Join(sessionId)).asPromise.map {
 
       case Connected(enumerator) => {
-        println(enumerator)
         // Create an Iteratee to consume the feed
         val iteratee = Iteratee.foreach[JsValue] { event =>
           println("unhandled event ", event)
@@ -61,12 +60,10 @@ class ConnectedUsers extends Actor {
     }
     case CreateNewAbsence(sessionId, a) => {
       val id = Absence.create(Absence(-1, a.userId, a.description, a.start, a.end))
-      println("new Absense created with id: ", id)
       notifyAll(Json.toJson(Absence(id, a.userId, a.description, a.start, a.end)))
     }
     case CreateNewUser(sessionId, u) => {
       val id = User.create(User(name = u.name))
-      println("new User created with id: ", id)
       notifyAll(Json.toJson(User(id, u.name)))
     }
 
@@ -74,13 +71,14 @@ class ConnectedUsers extends Actor {
   def notify(sessionId: String, message: JsValue) {
     val option = users.get(sessionId)
     if (option.isDefined) {
-      println("session found notifying")
+      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + message)
       option.get.push(message)
     } else {
       println("session NOT found " + sessionId)
     }
   }
   def notifyAll(msg: JsValue) {
+    println("ConnectedUsers.notifyAll message: " + msg)
     users.foreach {
       case (_, channel) => channel.push(msg)
     }
