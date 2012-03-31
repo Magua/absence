@@ -54,35 +54,42 @@ class ConnectedUsers extends Actor {
     case Quit() => {
     }
     case GetAllAbsence(sessionId) => {
-      notify(sessionId, write[List[Absence]](Absence.all()))
+      notify(sessionId, "absenceList", write[List[Absence]](Absence.all()))
     }
     case GetAllUsers(sessionId) => {
-      notify(sessionId, write[List[User]](User.all()))
+      notify(sessionId, "userList", write[List[User]](User.all()))
     }
     case CreateNewAbsence(sessionId, a) => {
       val storedAbsence = Absence.create(a)
-      notifyAll(write[Absence](storedAbsence))
+      notifyAll("absence", write[Absence](storedAbsence))
     }
     case CreateNewUser(sessionId, u) => {
       val storedUser = User.create(u)
-      notifyAll(write[User](storedUser))
+      notifyAll("user", write[User](storedUser))
+    }
+    case UpdateUser(sessionId, u) => {
+    	val storedUser = User.update(u)
+    	notifyAll("user", write[User](u))
     }
 
   }
-  def notify(sessionId: String, message: String) {
+  def notify(sessionId: String, name: String, message: String) {
     val option = users.get(sessionId)
     if (option.isDefined) {
       println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + message)
-      option.get.push(message)
+      option.get.push(addJsonName(name, message))
     } else {
       println("session NOT found " + sessionId)
     }
   }
-  def notifyAll(msg: String) {
+  def notifyAll(name: String, msg: String) {
     println("ConnectedUsers.notifyAll message: " + msg)
     users.foreach {
-      case (_, channel) => channel.push(msg)
+      case (_, channel) => channel.push(addJsonName(name, msg))
     }
+  }
+  def addJsonName(name: String, message: String): String = {
+    """{"%1$s":%2$s}""" format (name, message)
   }
 }
 case class Join(sessionId: String)
