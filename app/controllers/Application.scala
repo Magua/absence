@@ -4,15 +4,17 @@ import play.api._
 import play.api.mvc._
 import models.Absence
 import models.User
-import play.api.libs.json.Json
-import play.api.libs.json.JsValue
 import models.ConnectedUsers
 import models.GetAllAbsence
 import models.CreateNewAbsence
 import models.CreateNewUser
 import models.GetAllUsers
+import net.liftweb.json.Serialization._
 
 object Application extends Controller {
+
+  implicit val formats = net.liftweb.json.DefaultFormats
+
   def newSessionId(): String = {
     java.util.UUID.randomUUID().toString()
   }
@@ -22,7 +24,7 @@ object Application extends Controller {
     Ok(views.html.wstest(sessionId)).withSession(request.session + ("uuid" -> sessionId))
   }
   def jsonNewUser = Action(parse.json) { request =>
-    val user = Json.fromJson[User](request.body)
+    val user = read[User](request.body.toString)
     ConnectedUsers.connectedUsersActor ! CreateNewUser(request.session("uuid"), user)
     jsonOk()
   }
@@ -31,7 +33,7 @@ object Application extends Controller {
     jsonOk()
   }
   def jsonNew = Action(parse.json) { request =>
-    val absence = Json.fromJson[Absence](request.body)
+    val absence = read[Absence](request.body.toString)
     ConnectedUsers.connectedUsersActor ! CreateNewAbsence(request.session("uuid"), absence)
     jsonOk()
   }
@@ -39,7 +41,7 @@ object Application extends Controller {
     ConnectedUsers.connectedUsersActor ! GetAllAbsence(request.session("uuid"))
     jsonOk()
   }
-  def connect(sessionId: String) = WebSocket.async[JsValue] { request =>
+  def connect(sessionId: String) = WebSocket.async[String] { request =>
     println("connect ws, sessionId:" + sessionId)
     ConnectedUsers.add(sessionId)
   }

@@ -3,40 +3,28 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
-import play.api.libs.json.JsValue
-import play.api.libs.json.Format
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsString
 
-case class Absence(id: Long = -1, userId: Long, description: String, start: Long, end: Long)
+case class Absence(id: Long = -1, userId: Long, description: String, start: Long, end: Long) {
+  def this(userId: Long, description: String, start: Long, end: Long) = this(-1, userId, description, start, end)
+}
 
 object Absence {
-    implicit object AbsenceFormat extends Format[Absence] {
-    def reads(json: JsValue): Absence = Absence(
-      (json \ "id").asOpt[Long].getOrElse(-1),
-      (json \ "userId").as[Long],
-      (json \ "description").as[String],
-      (json \ "start").as[Long],
-      (json \ "end").as[Long])
-    def writes(a: Absence): JsValue = JsObject(List(
-      "id" -> JsNumber(a.id),
-      "userId" -> JsNumber(a.userId),
-      "description" -> JsString(a.description),
-      "start" -> JsNumber(a.start),
-      "end" -> JsNumber(a.end)))
-  }
-  def create(absence: Absence): Long = {
+
+  def create(absence: Absence): Absence = {
     DB.withConnection { implicit c =>
       SQL("insert into absence (userId, description, start, end) values ({userId}, {description}, {start}, {end})").on(
-    	'userId -> absence.userId,
+        'userId -> absence.userId,
         'description -> absence.description,
         'start -> absence.start,
         'end -> absence.end).executeUpdate()
-      SQL("SELECT MAX(id) from absence")().collect {
+
+      val id = SQL("SELECT MAX(id) from absence")().collect {
         case Row(id: Int) => id
       }.head
-          
+
+      println("new Absense created with id: ", id)
+
+      Absence(id, absence.userId, absence.description, absence.start, absence.end)
     }
   }
   def all(): List[Absence] = DB.withConnection { implicit c =>
