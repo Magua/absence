@@ -31,11 +31,18 @@ object User {
 
     }
   }
+  def update(u: User): Long = {
+	  DB.withConnection { implicit c =>
+		  SQL("update user set name={name} where id = {id}").on(
+				  'name -> u.name,
+				  'id -> u.id).executeUpdate()
+	  }
+  }
   def all(): List[User] = DB.withConnection { implicit c =>
     SQL("select * from user").as(user *)
   }
 
-  def delete(id: Long) {
+  def delete(id: Long): Long = {
     DB.withConnection { implicit c =>
       SQL("delete from user where id = {id}").on(
         'id -> id).executeUpdate()
