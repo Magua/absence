@@ -1,34 +1,28 @@
 package models
+
 import anorm._
 import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
-import play.api.libs.json.JsValue
-import play.api.libs.json.Format
-import play.api.libs.json.JsObject
-import play.api.libs.json.JsNumber
-import play.api.libs.json.JsString
-import play.api.libs.json.JsString
 
-case class User(id: Long = -1, name: String)
+case class User(id: Long = -1, name: String) {
+  def this(name: String) = this(-1, name);
+}
 
 object User {
-  implicit object UserFormat extends Format[User] {
-    def reads(json: JsValue): User = User(
-      (json \ "id").asOpt[Long].getOrElse(-1),
-      (json \ "name").as[String])
-    def writes(a: User): JsValue = JsObject(List(
-      "id" -> JsNumber(a.id),
-      "name" -> JsString(a.name)))
-  }
-  def create(u: User): Long = {
+
+  def create(u: User): User = {
     DB.withConnection { implicit c =>
       SQL("insert into user (name) values ({name})").on(
         'name -> u.name).executeUpdate()
-      SQL("SELECT MAX(id) from user")().collect {
+
+      val id = SQL("SELECT MAX(id) from user")().collect {
         case Row(id: Int) => id
       }.head
 
+      println("new User created with id: ", id)
+
+      User(id, u.name)
     }
   }
   def update(u: User): Long = {

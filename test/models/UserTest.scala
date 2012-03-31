@@ -8,29 +8,34 @@ import play.api.mvc.AnyContentAsJson
 import play.api.libs.json._
 import play.api._
 import play.api.mvc._
+import net.liftweb.json.Serialization
 
 class UserTest extends Specification {
+
+  implicit val formats = net.liftweb.json.DefaultFormats
+
   "make sure serialization and deserialisation does not break object" in {
     val u = User(-1, "Dolores Clayborn")
-    val jsonString = Json.toJson(u).toString()
+
+    val jsonString = Serialization.write[User](u)
     println(jsonString)
-    val uII = Json.parse(jsonString).as[User]
+    val uII = Serialization.read[User](jsonString)
     u must equalTo(uII)
   }
-  
+
   "make sure serialization works if optional id is missing" in {
     val jsonString = ("""{"name":"Dolores"}""")
-    val absence = Json.parse(jsonString).as[User]
-    absence.id must equalTo(-1)
+    val user = Serialization.read[User](jsonString)
+    user.id must equalTo(-1)
   }
   
   "test crud methods" in {
     running(FakeApplication()) {
-      val id = User.create(User(name = "Ove"))
-      val user = User.all()(0)
-      user.id must equalTo(id)
-      user.name must equalTo("Ove")
-      val affectedRows = User.update(User(id, "Ove Rytter"))
+      val user = User.create(User(name = "Ove"))
+      val sameUser = User.all()(0)
+      sameUser.id must equalTo(user.id)
+      sameUser.name must equalTo("Ove")
+      val affectedRows = User.update(User(user.id, "Ove Rytter"))
       affectedRows must equalTo(1)
       
       val updatedUser = User.all()(0)
@@ -39,9 +44,7 @@ class UserTest extends Specification {
       val size = User.all().size
       size must equalTo(1)
       
-      val effectedDeleteRows = User.delete(id)
-      effectedDeleteRows must equalTo(1)
-
+      val effectedDeleteRows = User.delete(updatedUser.id)
       
       val newSize = User.all().size
       newSize must equalTo(0)
