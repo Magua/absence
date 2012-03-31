@@ -32,7 +32,7 @@ object Application extends Controller {
     jsonOk()
   }
   def jsonUpdateUser = Action(parse.json) { request =>
-    val user = Json.fromJson[User](request.body)
+    val user = read[User](request.body.toString)
     ConnectedUsers.connectedUsersActor ! UpdateUser(request.session("uuid"), user)
     jsonOk()
   }

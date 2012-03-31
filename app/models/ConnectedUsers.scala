@@ -90,6 +90,7 @@ case class GetAllAbsence(sessionId: String)
 case class GetAllUsers(sessionId: String)
 case class CreateNewAbsence(sessionId: String, abcense: Absence)
 case class CreateNewUser(sessionId: String, u: User)
+case class UpdateUser(sessionId: String, u: User)
 case class Quit()
 case class NotifyJoin()
 
