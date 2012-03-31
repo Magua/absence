@@ -2,143 +2,136 @@
 @main("Web Socket Test Page") {
     
 <script type="text/javascript" charset="utf-8">
-        $(function() {
-        	/* User Class */
-        	var User = Backbone.Model.extend({
-        		defaults: function() {
-        	      return {
-        	          name: ""
-        	      };
-        	    }
-        	})
-        	/* List[User] */
-        	var Users = Backbone.Collection.extend({
-        		  model: User
-       		})
-       		
-        	var users = new Users()
-        		
-        	users.on("add", function(user) {
-        		  alert("Welcome " + user.get("id") + "!");
-        	})
-        	
-        	  // Todo Item View
-  // --------------
+$(function() {
+	/* User Model */
+	var User = Backbone.Model.extend({
+		defaults : function() {
+			return {
+				name : ""
+			};
+		}
+	})
+	/* List of User models List[User] */
+	var Users = Backbone.Collection.extend({
+		model : User
+	})
 
-  // The DOM element for a todo item...
-  var UserView = Backbone.View.extend({
+	var users = new Users()
 
-    //... is a list tag.
-    tagName:  "li",
+	users.on("add", function(user) {
+		var view = new UserView({
+			model : user
+		});
+		$("#user-list").append(view.render().el);
+	})
+	
+	/* User View */
+	var UserView = Backbone.View.extend({
+		tagName : "li",
+		template: _.template($('#item-template').html()),
+		events : {
+			"click .liUser" : "edit"
+		},
+		initialize : function() {
+			this.model.bind('change', this.render, this);
+		},
+		render : function() {
+			this.$el.html(this.template(this.model.toJSON()));
+			return this;
+		},
+		edit : function() {
+			var newName = prompt("Please enter new name")
+			
+			var updateUserRequest = {
+				id: this.model.id,
+				name : newName
+			}
+			var endpoint = $("#newUserRequestEndpoint").val()
+			sendMessage("/jsonUpdateUser", updateUserRequest)
+		}
+	});
 
-    // Cache the template function for a single item.
-    template: _.template($('#item-template').html()),
+	var incommingUser = function(user) {
+		var existingUser = users.get(user.id)
+		if (existingUser) {
+			existingUser.set({name: user.name})
+		} else {
+			users.add(new User(user))
+		}
+	}
 
-    // The DOM events specific to an item.
-    events: {
-      "dblclick .view"  : "edit",
-      "click a.destroy" : "clear"
-    },
+	var receiveEvent = function(event) {
+		console.log(event)
+		var jsonString = event.data
+		$("#log").append("<div>" + jsonString + "</div>")
+		var json = JSON.parse(jsonString)
+		if (json.user) {
+			incommingUser(json.user)
+		} else if (json.userList) {
+			var i = 0
+			for(; i < json.userList.length; i++) {
+				incommingUser(json.userList[i])
+			}
+		}
+	}
+	var onopen = function() {
+		console.log("connected")
+		$("#log").append("<div>connected</div>")
+	}
 
-    // The TodoView listens for changes to its model, re-rendering. Since there's
-    // a one-to-one correspondence between a **Todo** and a **TodoView** in this
-    // app, we set a direct reference on the model for convenience.
-    initialize: function() {
-      this.model.bind('change', this.render, this);
-      this.model.bind('destroy', this.remove, this);
-    },
+	var sendMessage = function(endpoint, json) {
+		var jsonString = JSON.stringify(json)
+		console.log("sending to: " + endpoint + " -> " + jsonString)
+		var result = $.ajax({
+			type : "POST",
+			contentType : "application/json",
+			url : endpoint,
+			async : false,
+			data : jsonString
+		})
+		console.log("synchronous response: " + result.responseText)
+		return result
+	}
 
-    // Re-render the titles of the todo item.
-    render: function() {
-      this.$el.html(this.template(this.model.toJSON()));
-      this.$el.toggleClass('done', this.model.get('done'));
-      this.input = this.$('.edit');
-      return this;
-    },
+	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+	var chatSocket = new WS("ws://" + location.hostname
+			+ ":@webSocketPort/connect/@sessionId")
+	chatSocket.onmessage = receiveEvent
+	chatSocket.onopen = onopen
 
-    // Switch this view into `"editing"` mode, displaying the input field.
-    edit: function() {
-      this.$el.addClass("editing");
-      this.input.focus();
-    }
-  });
-        	
-        	var incommingUser = function(user) {
-        		var existingUser = users.get(user.id)
-           		if (existingUser) {
-           			existingUser.set(user)
-           		}
-           		else {
-               		users.add(new User(user))
-           		}
-        	}
-        	
-            var receiveEvent = function(event) {
-	            console.log(event)        
-                var jsonString = event.data
-                $("#log").append("<div>" + jsonString + "</div>")
-               	var json = JSON.parse(jsonString)
-               	if (json.user) {
-               		incommingUser(json.user)
-                }
-               	else if (json.userList) {
-               		//var i
-               		//for(i = 0; i < jsonUserList)
-               	}
-            }
-            var onopen = function() {
-            	console.log("connected")
-            	$("#log").append("<div>connected</div>")
-            }
-           
-            var sendMessage = function(endpoint, json) {
-            	var jsonString = JSON.stringify(json)
-            	console.log("sending to: " + endpoint + " -> " + jsonString)
-            	var result = $.ajax({
-            		  type: "POST",
-            		  contentType: "application/json",
-            		  url: endpoint,
-            		  async: false,
-            		  data: jsonString})
-            	console.log("synchronous response: " + result.responseText)
-            	return result
-            }
-            
-			var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-            var chatSocket = new WS("ws://" + location.hostname + ":@webSocketPort/connect/@sessionId")
-            chatSocket.onmessage = receiveEvent
-            chatSocket.onopen = onopen
-            
-        	$("#newUserRequestButton").click(function() {
-                var newUserRequest = {
-                    	name: $("#newUserRequestName").val()
-                }
-        		var endpoint = $("#newUserRequestEndpoint").val()
-        		sendMessage(endpoint, newUserRequest)
-        	});
-        	$("#allUsersRequestButton").click(function() { 
-				var allUsersRequest = {}
-        		var endpoint = $("#allUsersRequestEndpoint").val()
-        		sendMessage(endpoint, allUsersRequest)
-        	});
-        	$("#allAbsenceRequestButton").click(function() { 
-				var allAbsenceRequest = {}
-        		var endpoint = $("#allAbsenceRequestEndpoint").val()
-        		sendMessage(endpoint, allAbsenceRequest)
-        	});
-        	$("#newAbsenceRequestButton").click(function() {
-        		var newAbsenceRequest = {
-                		userId: parseInt($("#newAbsenceRequestUserId").val()),
-                		description: $("#newAbsenceRequestDescription").val(),
-                		start: parseInt($("#newAbsenceRequestStart").val()),
-                		end: parseInt($("#newAbsenceRequestEnd").val())
-                }
-        		var endpoint = $("#newAbsenceRequestEndpoint").val()
-        		sendMessage(endpoint, newAbsenceRequest)
-        	});
-        })
-    
-    </script>
+	$("#newUserRequestButton").click(function() {
+		var newUserRequest = {
+			name : $("#newUserRequestName").val()
+		}
+		var endpoint = $("#newUserRequestEndpoint").val()
+		sendMessage(endpoint, newUserRequest)
+	});
+	$("#allUsersRequestButton").click(function() {
+		var allUsersRequest = {}
+		var endpoint = $("#allUsersRequestEndpoint").val()
+		sendMessage(endpoint, allUsersRequest)
+	});
+	$("#allAbsenceRequestButton").click(function() {
+		var allAbsenceRequest = {}
+		var endpoint = $("#allAbsenceRequestEndpoint").val()
+		sendMessage(endpoint, allAbsenceRequest)
+	});
+	$("#newAbsenceRequestButton").click(function() {
+		var newAbsenceRequest = {
+			userId : parseInt($("#newAbsenceRequestUserId").val()),
+			description : $("#newAbsenceRequestDescription").val(),
+			start : parseInt($("#newAbsenceRequestStart").val()),
+			end : parseInt($("#newAbsenceRequestEnd").val())
+		}
+		var endpoint = $("#newAbsenceRequestEndpoint").val()
+		sendMessage(endpoint, newAbsenceRequest)
+	});
+})
+</script>
+<script type="text/template" id="item-template">
+	<li class="liUser"><%= name %></li>
+</script>
+    <ul id="user-list"></ul>
     <div id="newUserRequestDiv"  style=" border : 2px dotted red">
     	<div>Endpoint: <input type="text" id="newUserRequestEndpoint" value="/jsonNewUser"></div>
     	<div>Name: <input type="text" id="newUserRequestName"></div>
