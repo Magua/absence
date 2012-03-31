@@ -2,28 +2,26 @@ package models
 import play.api.libs.concurrent.Promise
 import akka.actor._
 import akka.util.duration._
-
 import play.api._
-import play.api.libs.json._
 import play.api.libs.iteratee._
 import play.api.libs.concurrent._
-
 import akka.util.Timeout
 import akka.pattern.ask
-
 import play.api.Play.current
+import net.liftweb.json.Serialization._
 
 object ConnectedUsers {
+
   implicit val timeout = Timeout(1 second)
   lazy val connectedUsersActor = Akka.system.actorOf(Props[ConnectedUsers])
 
-  def add(sessionId: String): Promise[(Iteratee[JsValue, _], Enumerator[JsValue])] = {
+  def add(sessionId: String): Promise[(Iteratee[String, _], Enumerator[String])] = {
     (connectedUsersActor ? Join(sessionId)).asPromise.map {
 
       case Connected(enumerator) => {
         println(enumerator)
         // Create an Iteratee to consume the feed
-        val iteratee = Iteratee.foreach[JsValue] { event =>
+        val iteratee = Iteratee.foreach[String] { event =>
           println("unhandled event ", event)
         }.mapDone { _ =>
           println("quit")
@@ -37,12 +35,15 @@ object ConnectedUsers {
 }
 
 class ConnectedUsers extends Actor {
-  var users = Map.empty[String, PushEnumerator[JsValue]]
+
+  implicit val formats = net.liftweb.json.DefaultFormats
+
+  var users = Map.empty[String, PushEnumerator[String]]
   def receive = {
 
     case Join(sessionId) => {
       // Create an Enumerator to write to this socket
-      val channel = Enumerator.imperative[JsValue](onStart = self ! NotifyJoin())
+      val channel = Enumerator.imperative[String](onStart = self ! NotifyJoin())
       users = users + (sessionId -> channel)
       println("adding session " + sessionId)
       sender ! Connected(channel)
@@ -54,24 +55,22 @@ class ConnectedUsers extends Actor {
     case Quit() => {
     }
     case GetAllAbsence(sessionId) => {
-      notify(sessionId, Json.toJson(Absence.all()))
+      notify(sessionId, write[List[Absence]](Absence.all()))
     }
     case GetAllUsers(sessionId) => {
-    	notify(sessionId, Json.toJson(User.all()))
+      notify(sessionId, write[List[User]](User.all()))
     }
     case CreateNewAbsence(sessionId, a) => {
-      val id = Absence.create(Absence(-1, a.userId, a.description, a.start, a.end))
-      println("new Absense created with id: ", id)
-      notifyAll(Json.toJson(Absence(id, a.userId, a.description, a.start, a.end)))
+      val storedAbsence = Absence.create(a)
+      notifyAll(write[Absence](storedAbsence))
     }
     case CreateNewUser(sessionId, u) => {
-      val id = User.create(User(name = u.name))
-      println("new User created with id: ", id)
-      notifyAll(Json.toJson(User(id, u.name)))
+      val storedUser = User.create(u)
+      notifyAll(write[User](storedUser))
     }
 
   }
-  def notify(sessionId: String, message: JsValue) {
+  def notify(sessionId: String, message: String) {
     val option = users.get(sessionId)
     if (option.isDefined) {
       println("session found notifying")
@@ -80,7 +79,7 @@ class ConnectedUsers extends Actor {
       println("session NOT found " + sessionId)
     }
   }
-  def notifyAll(msg: JsValue) {
+  def notifyAll(msg: String) {
     users.foreach {
       case (_, channel) => channel.push(msg)
     }
@@ -94,4 +93,4 @@ case class CreateNewUser(sessionId: String, u: User)
 case class Quit()
 case class NotifyJoin()
 
-case class Connected(enumerator: Enumerator[JsValue])
+case class Connected(enumerator: Enumerator[String])

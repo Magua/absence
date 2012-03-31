@@ -8,19 +8,24 @@ import play.api.mvc.AnyContentAsJson
 import play.api.libs.json._
 import play.api._
 import play.api.mvc._
+import net.liftweb.json.Serialization
 
 class UserTest extends Specification {
+
+  implicit val formats = net.liftweb.json.DefaultFormats
+
   "make sure serialization and deserialisation does not break object" in {
     val u = User(-1, "Dolores Clayborn")
-    val jsonString = Json.toJson(u).toString()
+
+    val jsonString = Serialization.write[User](u)
     println(jsonString)
-    val uII = Json.parse(jsonString).as[User]
+    val uII = Serialization.read[User](jsonString)
     u must equalTo(uII)
   }
-  
+
   "make sure serialization works if optional id is missing" in {
     val jsonString = ("""{"name":"Dolores"}""")
-    val absence = Json.parse(jsonString).as[User]
-    absence.id must equalTo(-1)
+    val user = Serialization.read[User](jsonString)
+    user.id must equalTo(-1)
   }
 }
