@@ -19,7 +19,6 @@ object ConnectedUsers {
     (connectedUsersActor ? Join(sessionId)).asPromise.map {
 
       case Connected(enumerator) => {
-        println(enumerator)
         // Create an Iteratee to consume the feed
         val iteratee = Iteratee.foreach[String] { event =>
           println("unhandled event ", event)
@@ -73,13 +72,14 @@ class ConnectedUsers extends Actor {
   def notify(sessionId: String, message: String) {
     val option = users.get(sessionId)
     if (option.isDefined) {
-      println("session found notifying")
+      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + message)
       option.get.push(message)
     } else {
       println("session NOT found " + sessionId)
     }
   }
   def notifyAll(msg: String) {
+    println("ConnectedUsers.notifyAll message: " + msg)
     users.foreach {
       case (_, channel) => channel.push(msg)
     }
