@@ -12,6 +12,7 @@ import models.CreateNewAbsence
 import models.CreateNewUser
 import models.GetAllUsers
 import Play.current
+import models.UpdateUser
 
 object Application extends Controller {
   def newSessionId(): String = {
@@ -26,6 +27,11 @@ object Application extends Controller {
   def jsonNewUser = Action(parse.json) { request =>
     val user = Json.fromJson[User](request.body)
     ConnectedUsers.connectedUsersActor ! CreateNewUser(request.session("uuid"), user)
+    jsonOk()
+  }
+  def jsonUpdateUser = Action(parse.json) { request =>
+    val user = Json.fromJson[User](request.body)
+    ConnectedUsers.connectedUsersActor ! UpdateUser(request.session("uuid"), user)
     jsonOk()
   }
   def jsonAllUsers = Action(parse.json) { request =>

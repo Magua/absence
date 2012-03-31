@@ -12,6 +12,7 @@ GET     /connect/:sessionId         controllers.Application.connect(sessionId: S
 #JSON
 POST		/jsonNew				controllers.Application.jsonNew
 POST		/jsonNewUser			controllers.Application.jsonNewUser
+POST		/jsonUpdateUser			controllers.Application.jsonUpdateUser
 POST		/jsonAll				controllers.Application.jsonAll
 POST		/jsonAllUsers			controllers.Application.jsonAllUsers
 

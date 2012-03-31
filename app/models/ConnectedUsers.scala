@@ -66,17 +66,20 @@ class ConnectedUsers extends Actor {
       val id = User.create(User(name = u.name))
       notifyAll[User]("user", User(id, u.name))
     }
+    case UpdateUser(sessionId, u) => {
+    	val affectedRows = User.update(u)
+    	if (affectedRows.equals(1)) {
+    		notifyAll[User]("user", u)
+    	}
+    	else {
+    	  notifyError(sessionId, Seq("id" -> JsString("updateFail"), "affectedRows" -> JsNumber(affectedRows)))
+    	}
+    }
 
   }
   def notify[T](sessionId: String, name: String, message: T)(implicit tjs: Writes[T]) {
     val jsonMessage = JsObject(Seq(name -> Json.toJson(message)))
-    val option = users.get(sessionId)
-    if (option.isDefined) {
-      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + jsonMessage)
-      option.get.push(jsonMessage)
-    } else {
-      println("session NOT found " + sessionId)
-    }
+    notifySession(sessionId, jsonMessage)
   }
   def notifyAll[T](name: String, message: T)(implicit tjs: Writes[T]) {
     val jsonMessage = JsObject(Seq(name -> Json.toJson(message)))
@@ -85,12 +88,26 @@ class ConnectedUsers extends Actor {
       case (_, channel) => channel.push(jsonMessage)
     }
   }
+  def notifyError(sessionId: String, seq: Seq[(String, JsValue)]) {
+    val jsObject = JsObject(Seq("error" -> JsObject(seq)))
+    notifySession(sessionId, jsObject)
+  }
+  def notifySession(sessionId: String, jsValue: JsValue) {
+    val option = users.get(sessionId)
+    if (option.isDefined) {
+      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + jsValue)
+      option.get.push(jsValue)
+    } else {
+      println("session NOT found " + sessionId)
+    }    
+  }
 }
 case class Join(sessionId: String)
 case class GetAllAbsence(sessionId: String)
 case class GetAllUsers(sessionId: String)
 case class CreateNewAbsence(sessionId: String, abcense: Absence)
 case class CreateNewUser(sessionId: String, u: User)
+case class UpdateUser(sessionId: String, u: User)
 case class Quit()
 case class NotifyJoin()
 

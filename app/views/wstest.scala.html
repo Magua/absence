@@ -2,27 +2,52 @@
 @main("Web Socket Test Page") {
     
 <script type="text/javascript" charset="utf-8">
-    
         $(function() {
-          
-            var listAllAbsenceRequest = {
-            		
-            }
-            
+        	/* User Class */
+        	var User = Backbone.Model.extend({
+        		defaults: function() {
+        	      return {
+        	          name: ""
+        	      };
+        	    }
+        	})
+        	/* List[User] */
+        	var Users = Backbone.Collection.extend({
+        		  model: User
+       		})
+       		
+        	var users = new Users()
+        		
+        	users.on("add", function(user) {
+        		  alert("Welcome " + user.get("id") + "!");
+        	})
+        	
+        	var incommingUser = function(user) {
+        		var existingUser = users.get(user.id)
+           		if (existingUser) {
+           			existingUser.set(user)
+           		}
+           		else {
+               		users.add(new User(user))
+           		}
+        	}
+        	
             var receiveEvent = function(event) {
 	            console.log(event)        
-                var data = event.data
-                $("#log").append("<div>" + data + "</div>")
-                // Handle errors
-                if(data.error) {
-                    chatSocket.close()
-                    return
+                var jsonString = event.data
+                $("#log").append("<div>" + jsonString + "</div>")
+               	var json = JSON.parse(jsonString)
+               	if (json.user) {
+               		incommingUser(json.user)
                 }
-            
+               	else if (json.userList) {
+               		//var i
+               		//for(i = 0; i < jsonUserList)
+               	}
             }
-            
             var onopen = function() {
             	console.log("connected")
+            	$("#log").append("<div>connected</div>")
             }
            
             var sendMessage = function(endpoint, json) {
