@@ -53,17 +53,17 @@ class ConnectedUsers extends Actor {
 
     case Quit() => {
     }
-    case GetAllAbsence(sessionId) => {
+    case FindAllAbsence(sessionId) => {
       notify(sessionId, "absenceList", write[List[Absence]](Absence.all()))
     }
-    case GetAllUsers(sessionId) => {
+    case FindAllUsers(sessionId) => {
       notify(sessionId, "userList", write[List[User]](User.all()))
     }
-    case CreateNewAbsence(sessionId, a) => {
+    case CreateAbsence(sessionId, a) => {
       val storedAbsence = Absence.create(a)
       notifyAll("absence", write[Absence](storedAbsence))
     }
-    case CreateNewUser(sessionId, u) => {
+    case CreateUser(sessionId, u) => {
       val storedUser = User.create(u)
       notifyAll("user", write[User](storedUser))
     }
@@ -93,10 +93,10 @@ class ConnectedUsers extends Actor {
   }
 }
 case class Join(sessionId: String)
-case class GetAllAbsence(sessionId: String)
-case class GetAllUsers(sessionId: String)
-case class CreateNewAbsence(sessionId: String, abcense: Absence)
-case class CreateNewUser(sessionId: String, u: User)
+case class FindAllAbsence(sessionId: String)
+case class FindAllUsers(sessionId: String)
+case class CreateAbsence(sessionId: String, abcense: Absence)
+case class CreateUser(sessionId: String, u: User)
 case class UpdateUser(sessionId: String, u: User)
 case class Quit()
 case class NotifyJoin()

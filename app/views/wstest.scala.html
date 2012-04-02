@@ -3,14 +3,28 @@
     
 <script type="text/javascript" charset="utf-8">
 $(function() {
+	/* Absence Model */
+	var Absence = Backbone.Model.extend({
+		defaults : function() {
+			return {
+				userId : -1,
+				description : "-description-",
+				start : 100,
+				end : 200
+			}
+		},
+		url: '/absence'
+	})
 	/* User Model */
 	var User = Backbone.Model.extend({
 		defaults : function() {
 			return {
-				name : ""
+				name : "default name"
 			};
-		}
+		},
+		url: '/user'
 	})
+	
 	/* List of User models List[User] */
 	var Users = Backbone.Collection.extend({
 		model : User
@@ -41,13 +55,8 @@ $(function() {
 		},
 		edit : function() {
 			var newName = prompt("Please enter new name")
-			
-			var updateUserRequest = {
-				id: this.model.id,
-				name : newName
-			}
-			var endpoint = $("#newUserRequestEndpoint").val()
-			sendMessage("/jsonUpdateUser", updateUserRequest)
+			this.model.set({name: newName})
+			this.model.save()
 		}
 	});
 
@@ -78,12 +87,16 @@ $(function() {
 		console.log("connected")
 		$("#log").append("<div>connected</div>")
 	}
-
+	
 	var sendMessage = function(endpoint, json) {
+		sendMessage(endpoint, json, "POST")
+	}
+	
+	var sendMessage = function(endpoint, json, method) {
 		var jsonString = JSON.stringify(json)
 		console.log("sending to: " + endpoint + " -> " + jsonString)
 		var result = $.ajax({
-			type : "POST",
+			type : method,
 			contentType : "application/json",
 			url : endpoint,
 			async : false,
@@ -94,37 +107,31 @@ $(function() {
 	}
 
 	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-	var chatSocket = new WS("ws://" + location.hostname
+	var absenceSocket = new WS("ws://" + location.hostname
 			+ ":@webSocketPort/connect/@sessionId")
-	chatSocket.onmessage = receiveEvent
-	chatSocket.onopen = onopen
+	absenceSocket.onmessage = receiveEvent
+	absenceSocket.onopen = onopen
 
 	$("#newUserRequestButton").click(function() {
-		var newUserRequest = {
-			name : $("#newUserRequestName").val()
-		}
-		var endpoint = $("#newUserRequestEndpoint").val()
-		sendMessage(endpoint, newUserRequest)
+		new User({name: $("#newUserRequestName").val()}).save()
 	});
 	$("#allUsersRequestButton").click(function() {
 		var allUsersRequest = {}
-		var endpoint = $("#allUsersRequestEndpoint").val()
-		sendMessage(endpoint, allUsersRequest)
+		var endpoint = "/user"
+		sendMessage(endpoint, allUsersRequest, "GET")
 	});
 	$("#allAbsenceRequestButton").click(function() {
 		var allAbsenceRequest = {}
-		var endpoint = $("#allAbsenceRequestEndpoint").val()
-		sendMessage(endpoint, allAbsenceRequest)
+		var endpoint = "/absence"
+		sendMessage(endpoint, allAbsenceRequest, "GET")
 	});
 	$("#newAbsenceRequestButton").click(function() {
-		var newAbsenceRequest = {
+		new Absence({
 			userId : parseInt($("#newAbsenceRequestUserId").val()),
 			description : $("#newAbsenceRequestDescription").val(),
 			start : parseInt($("#newAbsenceRequestStart").val()),
 			end : parseInt($("#newAbsenceRequestEnd").val())
-		}
-		var endpoint = $("#newAbsenceRequestEndpoint").val()
-		sendMessage(endpoint, newAbsenceRequest)
+		}).save()
 	});
 })
 </script>
@@ -133,25 +140,21 @@ $(function() {
 </script>
     <ul id="user-list"></ul>
     <div id="newUserRequestDiv"  style=" border : 2px dotted red">
-    	<div>Endpoint: <input type="text" id="newUserRequestEndpoint" value="/jsonNewUser"></div>
     	<div>Name: <input type="text" id="newUserRequestName"></div>
-    	<button id="newUserRequestButton">Send</button>
+    	<button id="newUserRequestButton">create user</button>
     </div>
     <div id="allUsersRequestDiv"  style=" border : 2px dotted pink">
-    	<div>Endpoint: <input type="text" id="allUsersRequestEndpoint" value="/jsonAllUsers"></div>
-    	<button id="allUsersRequestButton">Send</button>
+    	<button id="allUsersRequestButton">get all users</button>
     </div>
     <div id="newAbsenceRequestDiv"  style=" border : 2px dotted blue">
-    	<div>Endpoint: <input type="text" id="newAbsenceRequestEndpoint" value="/jsonNew"></div>
     	<div>UserId: <input type="text" id="newAbsenceRequestUserId"></div>
     	<div>Description: <input type="text" id="newAbsenceRequestDescription"></div>
     	<div>Start: <input type="text" id="newAbsenceRequestStart"></div>
     	<div>End: <input type="text" id="newAbsenceRequestEnd"></div>
-    	<button id="newAbsenceRequestButton">Send</button>
+    	<button id="newAbsenceRequestButton">create absence</button>
     </div>
     <div id="allAbsenceRequestDiv"  style=" border : 2px dotted green">
-    	<div>Endpoint: <input type="text" id="allAbsenceRequestEndpoint" value="/jsonAll"></div>
-    	<button id="allAbsenceRequestButton">Send</button>
+    	<button id="allAbsenceRequestButton">get all absence</button>
     </div>
     <div id="log"></div>
 }
