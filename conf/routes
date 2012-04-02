@@ -3,18 +3,31 @@
 # ~~~~
 
 # Home page
-GET     /                           controllers.Application.wsTest
-GET     /wsTest                     controllers.Application.wsTest
+GET     /                           	controllers.Main.wsTest
+GET     /wsTest                     	controllers.Main.wsTest
 
 # WebSocket
-GET     /connect/:sessionId         controllers.Application.connect(sessionId: String)
+GET     /connect/:sessionId         	controllers.Main.connect(sessionId: String)
 
 #JSON
-POST		/jsonNew				controllers.Application.jsonNew
-POST		/jsonNewUser			controllers.Application.jsonNewUser
-POST		/jsonUpdateUser			controllers.Application.jsonUpdateUser
-POST		/jsonAll				controllers.Application.jsonAll
-POST		/jsonAllUsers			controllers.Application.jsonAllUsers
+POST    	/user                   	controllers.UserController.create
+GET     	/user/:id               	controllers.UserController.read(id: Long)
+PUT     	/user		               	controllers.UserController.update
+DELETE  	/user/:id               	controllers.UserController.delete(id: Long)
+GET     	/user                   	controllers.UserController.findAll
+
+POST    	/absence                	controllers.AbsenceController.create
+GET     	/absence/:id            	controllers.AbsenceController.read(id: Long)
+PUT     	/absence/:id            	controllers.AbsenceController.update(id: Long)
+DELETE  	/absence/:id            	controllers.AbsenceController.delete(id: Long)
+GET			/absence					controllers.AbsenceController.findAll
+GET     	/absenceInSprint/:sprintId  controllers.AbsenceController.findInSprint(sprintId: Long)
+
+POST    	/sprint                 	controllers.SprintController.create
+GET     	/sprint/:id             	controllers.SprintController.read(id: Long)
+PUT     	/sprint/:id             	controllers.SprintController.update(id: Long)
+DELETE  	/sprint/:id             	controllers.SprintController.delete(id: Long)
+GET     	/sprintCurrent          	controllers.SprintController.findCurrent
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     	/assets/*file               controllers.Assets.at(path="/public", file)
