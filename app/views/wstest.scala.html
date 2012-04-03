@@ -133,6 +133,11 @@ $(function() {
 			end : parseInt($("#newAbsenceRequestEnd").val())
 		}).save()
 	});
+	$("#currentWeekRequestButton").click(function() {
+	    var currentWeekRequest = {}
+	    var endpoint = "/view/current"
+	    sendMessage(endpoint, currentWeekRequest, "GET")
+	  });
 })
 </script>
 <script type="text/template" id="item-template">
@@ -155,6 +160,9 @@ $(function() {
     </div>
     <div id="allAbsenceRequestDiv"  style=" border : 2px dotted green">
     	<button id="allAbsenceRequestButton">get all absence</button>
+    </div>
+    <div id="currentWeekRequestDiv"  style=" border : 2px dotted purple">
+      <button id="currentWeekRequestButton">get current week</button>
     </div>
     <div id="log"></div>
 }

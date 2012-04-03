@@ -68,8 +68,12 @@ class ConnectedUsers extends Actor {
       notifyAll("user", write[User](storedUser))
     }
     case UpdateUser(sessionId, u) => {
-    	val storedUser = User.update(u)
-    	notifyAll("user", write[User](u))
+      val storedUser = User.update(u)
+      notifyAll("user", write[User](u))
+    }
+
+    case CurrentWeek(sessionId) => {
+      notify(sessionId, "currentWeek", write[View](View.getCurrentWeek()))
     }
 
   }
@@ -100,5 +104,6 @@ case class CreateUser(sessionId: String, u: User)
 case class UpdateUser(sessionId: String, u: User)
 case class Quit()
 case class NotifyJoin()
+case class CurrentWeek(sessionId: String)
 
 case class Connected(enumerator: Enumerator[String])
