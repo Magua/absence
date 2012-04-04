@@ -2,11 +2,12 @@
  
 # --- !Ups
 
-CREATE SEQUENCE sprint_id_seq;
+CREATE SEQUENCE sprint_seq start with 1000;
 CREATE TABLE sprint (
-    id integer NOT NULL DEFAULT nextval('sprint_id_seq'),
-    days integer NOT NULL,
-    PRIMARY KEY (id)
+    id bigint not null primary key,
+    sprint_nr bigint not null,
+    start_date timestamp,
+    end_date timestamp
 );
 
 CREATE SEQUENCE user_id_seq;
@@ -30,11 +31,11 @@ CREATE TABLE absence (
  
 # --- !Downs
 
-DROP TABLE sprint;
-DROP SEQUENCE sprint_id_seq;
-
 DROP TABLE user;
 DROP SEQUENCE user_id_seq;
  
 DROP TABLE absence;
 DROP SEQUENCE absence_id_seq;
+
+drop table if exists sprint;
+drop sequence if exists sprint_seq;
