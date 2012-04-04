@@ -18,14 +18,14 @@ GET     	/user                   	controllers.UserController.findAll
 
 POST    	/absence                	controllers.AbsenceController.create
 GET     	/absence/:id            	controllers.AbsenceController.read(id: Long)
-PUT     	/absence/:id            	controllers.AbsenceController.update(id: Long)
+PUT     	/absence					controllers.AbsenceController.update
 DELETE  	/absence/:id            	controllers.AbsenceController.delete(id: Long)
 GET			/absence					controllers.AbsenceController.findAll
 GET     	/absenceInSprint/:sprintId  controllers.AbsenceController.findInSprint(sprintId: Long)
 
 POST    	/sprint                 	controllers.SprintController.create
 GET     	/sprint/:id             	controllers.SprintController.read(id: Long)
-PUT     	/sprint/:id             	controllers.SprintController.update(id: Long)
+PUT     	/sprint             		controllers.SprintController.update
 DELETE  	/sprint/:id             	controllers.SprintController.delete(id: Long)
 GET     	/sprintCurrent          	controllers.SprintController.findCurrent
 

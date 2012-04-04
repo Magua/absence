@@ -19,7 +19,7 @@ object SprintController extends Controller {
   
   def read(id: Long) = TODO
   
-  def update(id: Long) = TODO
+  def update = TODO
   
   def delete(id: Long) = TODO
   

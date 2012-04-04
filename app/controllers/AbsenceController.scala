@@ -2,17 +2,10 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import models.Absence
-import models.ConnectedUsers
-import models.FindAllAbsence
-import models.CreateAbsence
-import models.CreateUser
-import models.FindAllUsers
+import models._
 import Play.current
 import models.UpdateUser
 import net.liftweb.json.Serialization
-import models.User
-import models.FindAllAbsence
 
 object AbsenceController extends Controller {
   
@@ -35,7 +28,13 @@ object AbsenceController extends Controller {
   
   def read(id: Long) = TODO
   
-  def update(id: Long) = TODO
+  def update = Action { request =>
+    
+    val absence = readAbsence(request)
+    ConnectedUsers.connectedUsersActor ! UpdateAbsence(request.session("uuid"), absence)
+    jsonOk()
+    
+  }
   
   def delete(id: Long) = TODO
   

@@ -30,6 +30,11 @@ $(function() {
 		model : User
 	})
 
+	/* List of Absence models List[Absence] */
+	var Absences = Backbone.Collection.extend({
+		model : Absence
+	})
+
 	var users = new Users()
 
 	users.on("add", function(user) {
@@ -38,11 +43,19 @@ $(function() {
 		});
 		$("#user-list").append(view.render().el);
 	})
+	var absences = new Absences()
+
+	absences.on("add", function(absence) {
+		var view = new AbsenceView({
+			model : absence
+		});
+		$("#absence-list").append(view.render().el);
+	})
 	
 	/* User View */
 	var UserView = Backbone.View.extend({
 		tagName : "li",
-		template: _.template($('#item-template').html()),
+		template: _.template($('#user-template').html()),
 		events : {
 			"click .liUser" : "edit"
 		},
@@ -55,8 +68,32 @@ $(function() {
 		},
 		edit : function() {
 			var newName = prompt("Please enter new name")
-			this.model.set({name: newName})
-			this.model.save()
+			if (newName) {
+				this.model.set({name: newName})
+				this.model.save()
+			}
+		}
+	});
+	/* Absence View */
+	var AbsenceView = Backbone.View.extend({
+		tagName : "li",
+		template: _.template($('#absence-template').html()),
+		events : {
+			"click .liAbsenceDescription" : "edit"
+		},
+		initialize : function() {
+			this.model.bind('change', this.render, this);
+		},
+		render : function() {
+			this.$el.html(this.template(this.model.toJSON()));
+			return this;
+		},
+		edit : function() {
+			var newDescription = prompt("Please enter new description for Absence")
+			if (newDescription) {
+				this.model.set({description: newDescription})
+				this.model.save()
+			}
 		}
 	});
 
@@ -66,6 +103,15 @@ $(function() {
 			existingUser.set({name: user.name})
 		} else {
 			users.add(new User(user))
+		}
+	}
+	
+	var incommingAbsence = function(absence) {
+		var existingAbsence = absences.get(absence.id)
+		if (existingAbsence) {
+			existingAbsence.set({description: existingAbsence.name})
+		} else {
+			absences.add(new Absence(absence))
 		}
 	}
 
@@ -80,6 +126,13 @@ $(function() {
 			var i = 0
 			for(; i < json.userList.length; i++) {
 				incommingUser(json.userList[i])
+			}
+		} else if (json.absence) {
+			incommingAbsence(json.absence)
+		} else if (json.absenceList) {
+			var i = 0
+			for(; i < json.absenceList.length; i++) {
+				incommingAbsence(json.absenceList[i])
 			}
 		}
 	}
@@ -135,10 +188,19 @@ $(function() {
 	});
 })
 </script>
-<script type="text/template" id="item-template">
+<script type="text/template" id="user-template">
 	<li class="liUser"><%= name %></li>
 </script>
-    <ul id="user-list"></ul>
+<script type="text/template" id="absence-template">
+	<li>
+		<span><%= id %> - </span>
+		<span class="liAbsenceDescription"><%= description %></span>
+	</li>
+</script>
+	<div>
+    	<span><ul id="user-list"></ul></span>
+    	<span><ul id="absence-list"></ul></span>
+    </div>
     <div id="newUserRequestDiv"  style=" border : 2px dotted red">
     	<div>Name: <input type="text" id="newUserRequestName"></div>
     	<button id="newUserRequestButton">create user</button>
