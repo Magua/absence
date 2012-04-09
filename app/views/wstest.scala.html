@@ -57,10 +57,12 @@ $(function() {
 		tagName : "li",
 		template: _.template($('#user-template').html()),
 		events : {
-			"click .liUser" : "edit"
+			"click .liUserName"   : "edit",
+			"click .liUserDelete" : "delete"
 		},
 		initialize : function() {
 			this.model.bind('change', this.render, this);
+			this.model.bind('remove', this.remove, this);
 		},
 		render : function() {
 			this.$el.html(this.template(this.model.toJSON()));
@@ -72,6 +74,10 @@ $(function() {
 				this.model.set({name: newName})
 				this.model.save()
 			}
+		},
+		delete: function() {
+			// this.model.destory() should work but is missing id?
+			sendMessage("/user/" + this.model.id, "{}", "DELETE")
 		}
 	});
 	/* Absence View */
@@ -134,6 +140,8 @@ $(function() {
 			for(; i < json.absenceList.length; i++) {
 				incommingAbsence(json.absenceList[i])
 			}
+		} else if (json.userDelete) {
+			users.remove({id: json.userDelete.id})
 		}
 	}
 	var onopen = function() {
@@ -194,7 +202,9 @@ $(function() {
 })
 </script>
 <script type="text/template" id="user-template">
-	<li class="liUser"><%= name %></li>
+	<li>
+		<span class="liUserName"><%= name %></span>
+		<a class="liUserDelete" style="colour:red" href="#">X</a></li>
 </script>
 <script type="text/template" id="absence-template">
 	<li>
@@ -203,8 +213,8 @@ $(function() {
 	</li>
 </script>
 	<div>
-    	<span><ul id="user-list"></ul></span>
-    	<span><ul id="absence-list"></ul></span>
+    	<ul id="user-list"></ul>
+    	<ul id="absence-list"></ul>
     </div>
     <div id="newUserRequestDiv"  style=" border : 2px dotted red">
     	<div>Name: <input type="text" id="newUserRequestName"></div>

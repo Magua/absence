@@ -2,16 +2,9 @@ package controllers
 
 import play.api._
 import play.api.mvc._
-import models.Absence
-import models.ConnectedUsers
-import models.FindAllAbsence
-import models.CreateAbsence
-import models.CreateUser
-import models.FindAllUsers
+import models._
 import Play.current
-import models.UpdateUser
 import net.liftweb.json.Serialization
-import models.User
 
 object UserController extends Controller {
   
@@ -40,7 +33,10 @@ object UserController extends Controller {
     jsonOk()
   }
   
-  def delete(id: Long) = TODO
+  def delete(id: Long) = Action { request =>
+    ConnectedUsers.connectedUsersActor ! DeleteUser(request.session("uuid"), id)
+    jsonOk()
+  }
   
   def findAll = Action { request =>
     ConnectedUsers.connectedUsersActor ! FindAllUsers(request.session("uuid"))
