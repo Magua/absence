@@ -5,41 +5,31 @@ import play.api.mvc._
 import models._
 import Play.current
 import net.liftweb.json.Serialization
+import controllers.JsonUtil._
 
 object UserController extends Controller {
   
-  def readUser(request: Request[play.api.mvc.AnyContent]): User = { 
-		  implicit val formats = net.liftweb.json.DefaultFormats
-		  Serialization.read[User](request.body.asJson.getOrElse(throw new RuntimeException).toString())
-  }
-  
-  def jsonOk() = Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
-
-  def newSessionId(): String = {
-    java.util.UUID.randomUUID().toString()
-  }
-  
-  def create = Action { request =>
-    val user = readUser(request)
-    ConnectedUsers.connectedUsersActor ! CreateUser(request.session("uuid"), user)
-    jsonOk()
+  def create = Action { implicit request =>
+    handle[User](action = (user: User) => {
+    	ConnectedUsers.connectedUsersActor ! CreateUser(uuid, user)
+    })
   }
   
   def read(id: Long) = TODO
   
-  def update = Action { request =>
-    val user = readUser(request)
-    ConnectedUsers.connectedUsersActor ! UpdateUser(request.session("uuid"), user)
+  def update = Action { implicit request =>
+    handle[User](action = (user: User) => {
+    	ConnectedUsers.connectedUsersActor ! UpdateUser(uuid, user)
+    })
+  }
+  
+  def delete(id: Long) = Action { implicit request =>
+    ConnectedUsers.connectedUsersActor ! DeleteUser(uuid, id)
     jsonOk()
   }
   
-  def delete(id: Long) = Action { request =>
-    ConnectedUsers.connectedUsersActor ! DeleteUser(request.session("uuid"), id)
-    jsonOk()
-  }
-  
-  def findAll = Action { request =>
-    ConnectedUsers.connectedUsersActor ! FindAllUsers(request.session("uuid"))
+  def findAll = Action { implicit request =>
+    ConnectedUsers.connectedUsersActor ! FindAllUsers(uuid)
     jsonOk()
   }
   

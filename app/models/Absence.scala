@@ -9,7 +9,6 @@ case class Absence(id: Long = -1, userId: Long, description: String, start: Long
 }
 
 object Absence {
-
   def create(absence: Absence): Absence = {
     DB.withConnection { implicit c =>
       SQL("insert into absence (userId, description, start, end) values ({userId}, {description}, {start}, {end})").on(
@@ -21,8 +20,6 @@ object Absence {
       val id = SQL("SELECT MAX(id) from absence")().collect {
         case Row(id: Int) => id
       }.head
-
-      println("new Absense created with id: ", id)
 
       Absence(id, absence.userId, absence.description, absence.start, absence.end)
     }

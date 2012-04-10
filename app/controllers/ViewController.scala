@@ -14,13 +14,12 @@ import net.liftweb.json.Serialization
 import models.User
 import models.FindAllAbsence
 import models.CurrentWeek
+import controllers.JsonUtil._
 
 object ViewController extends Controller {
 
-  def jsonOk() = Ok("""{"rc":0,"message":"Ok"}""").as("application/json")
-
-  def getCurrentWeek = Action { request =>
-    ConnectedUsers.connectedUsersActor ! CurrentWeek(request.session("uuid"))
+  def getCurrentWeek = Action { implicit request =>
+    ConnectedUsers.connectedUsersActor ! CurrentWeek(uuid)
     jsonOk()
   }
 
