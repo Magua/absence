@@ -85,10 +85,12 @@ $(function() {
 		tagName : "li",
 		template: _.template($('#absence-template').html()),
 		events : {
-			"click .liAbsenceDescription" : "edit"
+			"click .liAbsenceDescription" : "edit",
+			"click .liAbsenceDelete" : "delete"
 		},
 		initialize : function() {
-			this.model.bind('change', this.render, this);
+			this.model.bind('change', this.render, this)
+			this.model.bind('remove', this.remove, this)
 		},
 		render : function() {
 			this.$el.html(this.template(this.model.toJSON()));
@@ -100,6 +102,10 @@ $(function() {
 				this.model.set({description: newDescription})
 				this.model.save()
 			}
+		},
+		delete: function() {
+			// this.model.destory() should work but is missing id?
+			sendMessage("/absence/" + this.model.id, "{}", "DELETE")
 		}
 	});
 
@@ -142,6 +148,8 @@ $(function() {
 			}
 		} else if (json.userDelete) {
 			users.remove({id: json.userDelete.id})
+		} else if (json.absenceDelete) {
+			absences.remove({id: json.absenceDelete.id})
 		}
 	}
 	var onopen = function() {
@@ -172,6 +180,7 @@ $(function() {
 			+ ":@webSocketPort/connect/@sessionId")
 	absenceSocket.onmessage = receiveEvent
 	absenceSocket.onopen = onopen
+	absenceSocket.onerror = function(evt) { alert(evt) };
 
 	$("#newUserRequestButton").click(function() {
 		new User({name: $("#newUserRequestName").val()}).save()
@@ -200,9 +209,14 @@ $(function() {
 	    sendMessage(endpoint, currentWeekRequest, "GET")
 	  });
 })
+var cometMessage = function(event) {
+	receiveEvent(event)
+	console.log('Received comet event: ' + event)
+}
 </script>
 <script type="text/template" id="user-template">
 	<li>
+		<span><%= id %> - </span>
 		<span class="liUserName"><%= name %></span>
 		<a class="liUserDelete" style="colour:red" href="#">X</a></li>
 </script>
@@ -210,8 +224,10 @@ $(function() {
 	<li>
 		<span><%= id %> - </span>
 		<span class="liAbsenceDescription"><%= description %></span>
-	</li>
+		<a class="liAbsenceDelete" style="colour:red" href="#">X</a></li>
 </script>
+
+
 	<div>
     	<ul id="user-list"></ul>
     	<ul id="absence-list"></ul>
@@ -236,5 +252,6 @@ $(function() {
     <div id="currentWeekRequestDiv"  style=" border : 2px dotted purple">
       <button id="currentWeekRequestButton">get current week</button>
     </div>
+    <!-- iframe src="/comet/@sessionId"></iframe -->
     <div id="log"></div>
 }

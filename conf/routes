@@ -8,6 +8,7 @@ GET     /wsTest                     	controllers.Main.wsTest
 
 # WebSocket
 GET     /connect/:sessionId         	controllers.Main.connect(sessionId: String)
+GET     /comet/:sessionId         		controllers.Main.comet(sessionId: String)
 
 #JSON
 POST    	/user                   	controllers.UserController.create

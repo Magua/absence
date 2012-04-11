@@ -92,6 +92,10 @@ class ConnectedUsers extends Actor {
       User.delete(id)
       notifyAll("userDelete", Map("id" -> id))
     }
+    case DeleteAbsence(sessionId, id) => {
+    	Absence.delete(id)
+    	notifyAll("absenceDelete", Map("id" -> id))
+    }
 
     case CurrentWeek(sessionId) => {
       notify(sessionId, "currentWeek", write[View](View.getCurrentWeek()))
@@ -127,6 +131,7 @@ case class FindAllAbsence(sessionId: String)
 case class FindAllUsers(sessionId: String)
 case class CreateAbsence(sessionId: String, abcense: Absence)
 case class UpdateAbsence(sessionId: String, abcense: Absence)
+case class DeleteAbsence(sessionId: String, id: Long)
 case class CreateUser(sessionId: String, u: User)
 case class UpdateUser(sessionId: String, u: User)
 case class DeleteUser(sessionId: String, id: Long)

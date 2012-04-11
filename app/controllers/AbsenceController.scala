@@ -24,7 +24,10 @@ object AbsenceController extends Controller {
     })
   }
   
-  def delete(id: Long) = TODO
+  def delete(id: Long) = Action { implicit request =>
+    ConnectedUsers.connectedUsersActor ! DeleteAbsence(uuid, id)
+    jsonOk()
+  }
   
   def findInSprint(sprintId: Long) = TODO
 

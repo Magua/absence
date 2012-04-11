@@ -12,19 +12,39 @@ import models.FindAllUsers
 import Play.current
 import models.UpdateUser
 import net.liftweb.json.Serialization
+import play.api.libs.concurrent.Promise
+import play.api.libs.iteratee.Enumerator
+import play.api.libs.iteratee.Iteratee
+import play.api.libs.Comet
 
 object Main extends Controller {
 
   def newSessionId(): String = {
     java.util.UUID.randomUUID().toString()
   }
-  
+
+  def comet(sessionId: String) = Action { request =>
+    val p: Promise[(Iteratee[String, _], Enumerator[String])] = ConnectedUsers.add(sessionId)
+    Async {
+      p.orTimeout("Oops", 1000).map { eitherTupleOrTimeout =>
+        eitherTupleOrTimeout.fold(
+          i => Ok.stream(i._2 &> Comet(callback = "parent.cometMessage")),
+          timeout => InternalServerError(timeout))
+      }
+    }
+  }
+
   def wsTest() = Action { request =>
     val webSocketPort = current.configuration.getString("web.socket.port").getOrElse("900")
     val sessionId = newSessionId()
     Ok(views.html.wstest(webSocketPort, sessionId)).withSession(request.session + ("uuid" -> sessionId))
   }
 
+  def connectBAk(sessionId: String) = Action { request =>
+    println("connect ws, sessionId:" + sessionId)
+    Ok.as("text/html")
+  }
+  
   def connect(sessionId: String) = WebSocket.async[String] { request =>
     println("connect ws, sessionId:" + sessionId)
     ConnectedUsers.add(sessionId)
