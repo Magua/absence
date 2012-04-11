@@ -2,7 +2,7 @@
 @main("Web Socket Test Page") {
     
 <script type="text/javascript" charset="utf-8">
-$(function() {
+var absenceNS = new function() {
 	/* Absence Model */
 	var Absence = Backbone.Model.extend({
 		defaults : function() {
@@ -36,78 +36,7 @@ $(function() {
 	})
 
 	var users = new Users()
-
-	users.on("add", function(user) {
-		var view = new UserView({
-			model : user
-		});
-		$("#user-list").append(view.render().el);
-	})
 	var absences = new Absences()
-
-	absences.on("add", function(absence) {
-		var view = new AbsenceView({
-			model : absence
-		});
-		$("#absence-list").append(view.render().el);
-	})
-	
-	/* User View */
-	var UserView = Backbone.View.extend({
-		tagName : "li",
-		template: _.template($('#user-template').html()),
-		events : {
-			"click .liUserName"   : "edit",
-			"click .liUserDelete" : "delete"
-		},
-		initialize : function() {
-			this.model.bind('change', this.render, this);
-			this.model.bind('remove', this.remove, this);
-		},
-		render : function() {
-			this.$el.html(this.template(this.model.toJSON()));
-			return this;
-		},
-		edit : function() {
-			var newName = prompt("Please enter new name")
-			if (newName) {
-				this.model.set({name: newName})
-				this.model.save()
-			}
-		},
-		delete: function() {
-			// this.model.destory() should work but is missing id?
-			sendMessage("/user/" + this.model.id, "{}", "DELETE")
-		}
-	});
-	/* Absence View */
-	var AbsenceView = Backbone.View.extend({
-		tagName : "li",
-		template: _.template($('#absence-template').html()),
-		events : {
-			"click .liAbsenceDescription" : "edit",
-			"click .liAbsenceDelete" : "delete"
-		},
-		initialize : function() {
-			this.model.bind('change', this.render, this)
-			this.model.bind('remove', this.remove, this)
-		},
-		render : function() {
-			this.$el.html(this.template(this.model.toJSON()));
-			return this;
-		},
-		edit : function() {
-			var newDescription = prompt("Please enter new description for Absence")
-			if (newDescription) {
-				this.model.set({description: newDescription})
-				this.model.save()
-			}
-		},
-		delete: function() {
-			// this.model.destory() should work but is missing id?
-			sendMessage("/absence/" + this.model.id, "{}", "DELETE")
-		}
-	});
 
 	var incommingUser = function(user) {
 		var existingUser = users.get(user.id)
@@ -127,9 +56,7 @@ $(function() {
 		}
 	}
 
-	var receiveEvent = function(event) {
-		console.log(event)
-		var jsonString = event.data
+	var receiveEvent = function(jsonString) {
 		$("#log").append("<div>" + jsonString + "</div>")
 		var json = JSON.parse(jsonString)
 		if (json.user) {
@@ -174,45 +101,125 @@ $(function() {
 		console.log("synchronous response: " + result.responseText)
 		return result
 	}
+	
+	var cometFallback = function() {
+		$("#log").append("<iframe src='/comet/@sessionId'></iframe>");
+	}
+	this.cometMessage = function(event) {
+		receiveEvent(event)
+		console.log('Received comet event: ' + event)
+	}
 
-	var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-	var absenceSocket = new WS("ws://" + location.hostname
-			+ ":@webSocketPort/connect/@sessionId")
-	absenceSocket.onmessage = receiveEvent
-	absenceSocket.onopen = onopen
-	absenceSocket.onerror = function(evt) { alert(evt) };
+	this.init = function() {
+		var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
+		var absenceSocket = new WS("ws://" + location.hostname + ":@webSocketPort/connect/@sessionId")
+		console.log(absenceSocket)
+		absenceSocket.onmessage = function(message) { receiveEvent(message.data) }
+		absenceSocket.onopen = onopen
+		absenceSocket.onclose = cometFallback
 
-	$("#newUserRequestButton").click(function() {
-		new User({name: $("#newUserRequestName").val()}).save()
-	});
-	$("#allUsersRequestButton").click(function() {
-		var allUsersRequest = {}
-		var endpoint = "/user"
-		sendMessage(endpoint, allUsersRequest, "GET")
-	});
-	$("#allAbsenceRequestButton").click(function() {
-		var allAbsenceRequest = {}
-		var endpoint = "/absence"
-		sendMessage(endpoint, allAbsenceRequest, "GET")
-	});
-	$("#newAbsenceRequestButton").click(function() {
-		new Absence({
-			userId : parseInt($("#newAbsenceRequestUserId").val()),
-			description : $("#newAbsenceRequestDescription").val(),
-			start : parseInt($("#newAbsenceRequestStart").val()),
-			end : parseInt($("#newAbsenceRequestEnd").val())
-		}).save()
-	});
-	$("#currentWeekRequestButton").click(function() {
-	    var currentWeekRequest = {}
-	    var endpoint = "/view/current"
-	    sendMessage(endpoint, currentWeekRequest, "GET")
-	  });
-})
-var cometMessage = function(event) {
-	receiveEvent(event)
-	console.log('Received comet event: ' + event)
+		/* User View */
+		var UserView = Backbone.View.extend({
+			tagName : "li",
+			template: _.template($('#user-template').html()),
+			events : {
+				"click .liUserName"   : "edit",
+				"click .liUserDelete" : "delete"
+			},
+			initialize : function() {
+				this.model.bind('change', this.render, this);
+				this.model.bind('remove', this.remove, this);
+			},
+			render : function() {
+				this.$el.html(this.template(this.model.toJSON()));
+				return this;
+			},
+			edit : function() {
+				var newName = prompt("Please enter new name")
+				if (newName) {
+					this.model.set({name: newName})
+					this.model.save()
+				}
+			},
+			delete: function() {
+				// this.model.destory() should work but is missing id?
+				sendMessage("/user/" + this.model.id, "{}", "DELETE")
+			}
+		});
+		/* Absence View */
+		var AbsenceView = Backbone.View.extend({
+			tagName : "li",
+			template: _.template($('#absence-template').html()),
+			events : {
+				"click .liAbsenceDescription" : "edit",
+				"click .liAbsenceDelete" : "delete"
+			},
+			initialize : function() {
+				this.model.bind('change', this.render, this)
+				this.model.bind('remove', this.remove, this)
+			},
+			render : function() {
+				this.$el.html(this.template(this.model.toJSON()));
+				return this;
+			},
+			edit : function() {
+				var newDescription = prompt("Please enter new description for Absence")
+				if (newDescription) {
+					this.model.set({description: newDescription})
+					this.model.save()
+				}
+			},
+			delete: function() {
+				// this.model.destory() should work but is missing id?
+				sendMessage("/absence/" + this.model.id, "{}", "DELETE")
+			}
+		});
+		
+		$("#newUserRequestButton").click(function() {
+			new User({name: $("#newUserRequestName").val()}).save()
+		});
+		$("#allUsersRequestButton").click(function() {
+			var allUsersRequest = {}
+			var endpoint = "/user"
+			sendMessage(endpoint, allUsersRequest, "GET")
+		});
+		$("#allAbsenceRequestButton").click(function() {
+			var allAbsenceRequest = {}
+			var endpoint = "/absence"
+			sendMessage(endpoint, allAbsenceRequest, "GET")
+		});
+		$("#newAbsenceRequestButton").click(function() {
+			new Absence({
+				userId : parseInt($("#newAbsenceRequestUserId").val()),
+				description : $("#newAbsenceRequestDescription").val(),
+				start : parseInt($("#newAbsenceRequestStart").val()),
+				end : parseInt($("#newAbsenceRequestEnd").val())
+			}).save()
+		});
+		$("#currentWeekRequestButton").click(function() {
+		    var currentWeekRequest = {}
+		    var endpoint = "/view/current"
+		    sendMessage(endpoint, currentWeekRequest, "GET")
+		});
+		
+		users.on("add", function(user) {
+			var view = new UserView({
+				model : user
+			});
+			$("#user-list").append(view.render().el);
+		})
+
+		absences.on("add", function(absence) {
+			var view = new AbsenceView({
+				model : absence
+			});
+			$("#absence-list").append(view.render().el);
+		})
+	}
 }
+$(function() {
+	absenceNS.init()
+})
 </script>
 <script type="text/template" id="user-template">
 	<li>
@@ -252,6 +259,5 @@ var cometMessage = function(event) {
     <div id="currentWeekRequestDiv"  style=" border : 2px dotted purple">
       <button id="currentWeekRequestButton">get current week</button>
     </div>
-    <!-- iframe src="/comet/@sessionId"></iframe -->
     <div id="log"></div>
 }

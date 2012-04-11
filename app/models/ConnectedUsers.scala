@@ -96,9 +96,11 @@ class ConnectedUsers extends Actor {
     	Absence.delete(id)
     	notifyAll("absenceDelete", Map("id" -> id))
     }
-
     case CurrentWeek(sessionId) => {
       notify(sessionId, "currentWeek", write[View](View.getCurrentWeek()))
+    }
+    case _ => {
+      throw new RuntimeException("Unhandled message")
     }
 
   }
