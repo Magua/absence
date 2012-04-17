@@ -4,31 +4,24 @@ import views.html.defaultpages.unauthorized
 import net.liftweb.json.Serialization
 import models.Absence
 import org.codehaus.jackson.annotate.JsonMethod
+import models.ConnectedUsers
 
 object JsonUtil {
   def jsonOk(): PlainResult = jsonMessage(0, "Ok")
+  def jsonOk(json: String): PlainResult = Results.Ok(json).as("application/json")
   def jsonMessage(rc: Int, message: String): PlainResult = {
     Results.Ok("""{"rc":%1$s,"message":"%2$s"}""".format(rc, message)).as("application/json")
   }
-  def readJson[T: Manifest](request: Request[play.api.mvc.AnyContent]): Option[T] = {
-    implicit val formats = net.liftweb.json.DefaultFormats
-    try {
-      Some(Serialization.read[T](request.body.asJson.getOrElse(throw new RuntimeException).toString()))
-    } catch {
-      case t => None
-    }
+  def jsonError(rc: Int, message: String): PlainResult = {
+    Results.InternalServerError("""{"rc":%1$s,"message":"%2$s"}""".format(rc, message)).as("application/json")
   }
-  def handle[T](
-    action: T => Unit,
-    success: Unit => PlainResult = { _ => { JsonUtil.jsonMessage(0, "Ok") } },
-    error: Exception => PlainResult = { _ => JsonUtil.jsonMessage(1000, "Not ok!?!") })
-    	(implicit r: Request[play.api.mvc.AnyContent], mt: Manifest[T]): Result = {
+  def readJson[T: Manifest](request: Request[play.api.mvc.AnyContent]): T = {
+    implicit val formats = net.liftweb.json.DefaultFormats
+    val jsonString = request.body.asJson.getOrElse(throw new RuntimeException("Unable to read request.body.asJson")).toString()
     try {
-      val model = JsonUtil.readJson[T](r).get
-      action(model)
-      success()
+      Serialization.read[T](jsonString)
     } catch {
-      case e: Exception => error(e)
+      case t => throw new RuntimeException("Unable to parse incomming json: " + jsonString)
     }
   }
   def uuid()(implicit r: Request[play.api.mvc.AnyContent]): String = { r.session("uuid") }

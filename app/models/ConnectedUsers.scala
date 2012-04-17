@@ -32,6 +32,9 @@ object ConnectedUsers {
       }
     }
   }
+  def send(msg: Any): Promise[String] = {
+    (connectedUsersActor ? msg).mapTo[String].asPromise
+  }
   def toJson(values: Map[String, Any]): String = {
     case class NumberInt(nr: Int)
     case class NumberLong(nr: Long)
@@ -70,58 +73,82 @@ class ConnectedUsers extends Actor {
 
     case Quit(sessionId) => {
     }
-    case FindAllAbsence(sessionId) => {
-      notify(sessionId, "absenceList", write[List[Absence]](Absence.all()))
-    }
-    case FindAllUsers(sessionId) => {
-      notify(sessionId, "userList", write[List[User]](User.all()))
-    }
     case CreateAbsence(sessionId, a) => {
-      val storedAbsence = Absence.create(a)
-      notifyAll("absence", write[Absence](storedAbsence))
+    	val storedAbsence = Absence.create(a)
+    	val storedAbsenceJson = write[Absence](storedAbsence)
+    	sender ! storedAbsenceJson
+    	notifyAll("absence", storedAbsenceJson, sessionId)
     }
-    case CreateUser(sessionId, u) => {
-      val storedUser = User.create(u)
-      notifyAll("user", write[User](storedUser))
-    }
-    case UpdateUser(sessionId, u) => {
-      val storedUser = User.update(u)
-      notifyAll("user", write[User](u))
-    }
-    case DeleteUser(sessionId, id) => {
-      User.delete(id)
-      notifyAll("userDelete", Map("id" -> id))
+    case UpdateAbsence(sessionId, a) => {
+    	Absence.update(a)
+    	val absenceJson = write[Absence](a)
+    	sender ! absenceJson
+    	notifyAll("absence", absenceJson, sessionId)
     }
     case DeleteAbsence(sessionId, id) => {
     	Absence.delete(id)
-    	notifyAll("absenceDelete", Map("id" -> id))
+    	notifyAll("absenceDelete", Map("id" -> id), sessionId)
+    }
+    case FindAllAbsence(sessionId) => {
+      val all = Absence.all()
+      notify(sessionId, "absenceList", write[List[Absence]](all))
+    }
+    case FindAllUsers(sessionId) => {
+      sender ! write[List[User]](User.all())
+    }
+    case CreateUser(sessionId, u) => {
+      val storedUser = User.create(u)
+      val storedUserJson = write[User](storedUser)
+      sender ! storedUserJson
+      notifyAll("user", storedUserJson, sessionId)
+    }
+    case UpdateUser(sessionId, u) => {
+      val storedUser = User.update(u)
+      val storedUserJson = write[User](u)
+      sender ! storedUserJson
+      notifyAll("user", storedUserJson, sessionId)
+    }
+    case DeleteUser(sessionId, id) => {
+      val affectedRows = User.delete(id)
+      var json: StringBuffer = new StringBuffer()
+      if (affectedRows == 1) {
+        json.append(ConnectedUsers.toJson(Map("id" -> id)))
+      }
+      else {
+    	json.append(ConnectedUsers.toJson(Map("error" -> true, "affectedRows" -> affectedRows)))        
+      }
+      sender ! json.toString()
+      notifyAll("userDelete", json.toString(), sessionId)
     }
     case CurrentWeek(sessionId) => {
       notify(sessionId, "currentWeek", write[View](View.getCurrentWeek()))
     }
-    case _ => {
-      throw new RuntimeException("Unhandled message")
+    case a: Any => {
+      println(a)
+      throw new RuntimeException("Unhandled message: " + a)
     }
 
   }
   def notify(sessionId: String, name: String, message: String) {
     val option = users.get(sessionId)
     if (option.isDefined) {
-      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + message)
-      option.get.push(addJsonName(name, message))
+      val messageWithName = addJsonName(name, message)
+      println("ConnectedUsers.notify sessionId: " + sessionId + " message: " + messageWithName)
+      option.get.push(messageWithName)
     } else {
       println("session NOT found " + sessionId)
     }
   }
 
-  def notifyAll(name: String, values: Map[String, Any]) {
-
-    notifyAll(name, ConnectedUsers.toJson(values))
+  def notifyAll(name: String, values: Map[String, Any], exeptThisSessionId: String) {
+    notifyAll(name, ConnectedUsers.toJson(values), exeptThisSessionId)
   }
-  def notifyAll(name: String, msg: String) {
+  def notifyAll(name: String, msg: String, exeptThisSessionId: String) {
+    val messageWithName = addJsonName(name, msg)
     println("ConnectedUsers.notifyAll(" + users.size + ") message: " + msg)
     users.foreach {
-      case (_, channel) => channel.push(addJsonName(name, msg))
+      case (sessionId, _) if sessionId.equals(exeptThisSessionId) => None
+      case (_, channel) => channel.push(messageWithName)
     }
   }
   def addJsonName(name: String, message: String): String = {
@@ -140,5 +167,4 @@ case class DeleteUser(sessionId: String, id: Long)
 case class Quit(sessionId: String)
 case class NotifyJoin(sessionId: String)
 case class CurrentWeek(sessionId: String)
-
 case class Connected(enumerator: Enumerator[String])

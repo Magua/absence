@@ -11,17 +11,23 @@ import net.liftweb.json.Serialization
 object AbsenceController extends Controller {
 
   def create = Action { implicit request =>
-    handle[Absence](action = (a: Absence) => {
-    	ConnectedUsers.connectedUsersActor ! CreateAbsence(uuid, a)
-    })
+    Async {
+      val a = readJson[Absence](request)
+      ConnectedUsers.send(CreateAbsence(uuid, a)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def read(id: Long) = TODO
   
   def update = Action { implicit request =>
-    handle[Absence](action = (a: Absence) => {
-    	ConnectedUsers.connectedUsersActor ! UpdateAbsence(uuid, a)            
-    })
+    Async {
+      val a = readJson[Absence](request)
+      ConnectedUsers.send(UpdateAbsence(uuid, a)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def delete(id: Long) = Action { implicit request =>

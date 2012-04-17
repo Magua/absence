@@ -10,27 +10,39 @@ import controllers.JsonUtil._
 object UserController extends Controller {
   
   def create = Action { implicit request =>
-    handle[User](action = (user: User) => {
-    	ConnectedUsers.connectedUsersActor ! CreateUser(uuid, user)
-    })
+    Async {
+      val u = readJson[User](request)
+      ConnectedUsers.send(CreateUser(uuid, u)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def read(id: Long) = TODO
   
   def update = Action { implicit request =>
-    handle[User](action = (user: User) => {
-    	ConnectedUsers.connectedUsersActor ! UpdateUser(uuid, user)
-    })
+    Async {
+      val u = readJson[User](request)
+      ConnectedUsers.send(UpdateUser(uuid, u)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def delete(id: Long) = Action { implicit request =>
-    ConnectedUsers.connectedUsersActor ! DeleteUser(uuid, id)
-    jsonOk()
+    Async {
+      ConnectedUsers.send(DeleteUser(uuid, id)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def findAll = Action { implicit request =>
-    ConnectedUsers.connectedUsersActor ! FindAllUsers(uuid)
-    jsonOk()
+    Async {
+      ConnectedUsers.send(FindAllUsers(uuid)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
 }
