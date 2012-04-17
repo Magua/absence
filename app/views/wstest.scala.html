@@ -1,38 +1,56 @@
-@(webSocketPort: String, sessionId: String)
+@(webSocketPort: String, sessionId: String, users: String, absences: String)
 @main("Web Socket Test Page") {
     
 <script type="text/javascript" charset="utf-8">
 var absenceNS = new function() {
 	/* Absence Model */
 	var Absence = Backbone.Model.extend({
-		defaults : function() {
-			return {
-				userId : -1,
-				description : "-description-",
-				start : 100,
-				end : 200
+		/*validate: function(attrs) {
+			if (attrs.start > attrs.end) {
+				return {rc: 1001, message: "end must Not be before start"}
 			}
+			if (!users.get(attrs.userId)) {
+				return {rc: 1002, message: "user must exist"}
+			}
+		},*/
+		initialize: function() {
+			this.on("error", function(model, error) {
+				alert("Absence:" + JSON.stringify(model) + " " + JSON.stringify(error))
+			})
+		},
+		startDate: function() {
+			new Date(start)
+		},
+		endDate: function() {
+			new Date(end)
 		},
 		url: '/absence'
 	})
 	/* User Model */
 	var User = Backbone.Model.extend({
-		defaults : function() {
-			return {
-				name : "default name"
-			};
+		/*validate: function(attrs) {
+			if (attrs.name.length <= 1) {
+				return {rc: 1001, message: "Name must be at least two characters"}
+			}
+		},*/
+		initialize: function() {
+			this.on("error", function(model, error) {
+				alert("User:" + JSON.stringify(model) + " " + JSON.stringify(error))
+			})
 		},
 		url: '/user'
 	})
 	
 	/* List of User models List[User] */
 	var Users = Backbone.Collection.extend({
-		model : User
+		model : User,
+		url : '/user'
 	})
 
 	/* List of Absence models List[Absence] */
 	var Absences = Backbone.Collection.extend({
-		model : Absence
+		model : Absence,
+		url : '/absence'
 	})
 
 	var users = new Users()
@@ -83,14 +101,17 @@ var absenceNS = new function() {
 		console.log("connected")
 		$("#log").append("<div>connected</div>")
 	}
-	
+	var onclose = function() {
+		console.log("closed")
+		$("#log").append("<div>closed</div>")
+	}	
 	var sendMessage = function(endpoint, json) {
 		sendMessage(endpoint, json, "POST")
 	}
 	
 	var sendMessage = function(endpoint, json, method) {
 		var jsonString = JSON.stringify(json)
-		console.log("sending to: " + endpoint + " -> " + jsonString)
+		console.log("sending (" + method + ") " + endpoint + " -> " + jsonString)
 		var result = $.ajax({
 			type : method,
 			contentType : "application/json",
@@ -109,15 +130,33 @@ var absenceNS = new function() {
 		receiveEvent(event)
 		console.log('Received comet event: ' + event)
 	}
-
+	var serverSentEvent = function(e) {
+		console.log(e)
+		receiveEvent(e.data)
+	}
+	var replaceAll = function(txt, replace, replacement) {
+	  return txt.replace(new RegExp(replace, 'g'), replacement);
+	}
 	this.init = function() {
-		var WS = window['MozWebSocket'] ? MozWebSocket : WebSocket
-		var absenceSocket = new WS("ws://" + location.hostname + ":@webSocketPort/connect/@sessionId")
-		console.log(absenceSocket)
-		absenceSocket.onmessage = function(message) { receiveEvent(message.data) }
-		absenceSocket.onopen = onopen
-		absenceSocket.onclose = cometFallback
-
+		var source = new EventSource('serverSentEvents/@sessionId');
+		source.addEventListener('message', function(e) {
+			console.log(e)
+			// TODO fix crazy unescape, this string should not be escaped in the first place (Chrome only?)
+			var json = e.data.substring(1, e.data.length - 1)
+			json = replaceAll(json, "\\\\", "")
+			console.log(json)
+		  	receiveEvent(json)
+		}, true);
+		
+		source.addEventListener('open', function(e) {
+		  onopen()
+		}, false);
+		
+		source.addEventListener('error', function(e) {
+		  if (e.readyState == EventSource.CLOSED) {
+		    onclose()
+		  }
+		}, false);
 		/* User View */
 		var UserView = Backbone.View.extend({
 			tagName : "li",
@@ -142,8 +181,7 @@ var absenceNS = new function() {
 				}
 			},
 			delete: function() {
-				// this.model.destory() should work but is missing id?
-				sendMessage("/user/" + this.model.id, "{}", "DELETE")
+				this.model.destroy()
 			}
 		});
 		/* Absence View */
@@ -170,13 +208,57 @@ var absenceNS = new function() {
 				}
 			},
 			delete: function() {
-				// this.model.destory() should work but is missing id?
-				sendMessage("/absence/" + this.model.id, "{}", "DELETE")
+				this.model.destroy()
 			}
 		});
-		
+
+		Backbone.sync = function(crud, model, options) {
+
+		  var resp, url, json, method
+
+		  switch (crud) {
+		    case "create":  {
+		    	url = model.url
+		    	json = model
+		    	method = "POST"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "read": {
+		    	url = model.id ? model.url + "/" + model.id : model.url
+		    			json = "{}"
+		    	method = "GET"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "update":  {
+		    	url = model.url
+		    	json = model
+		    	method = "PUT"                       
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "delete": {
+		    	url = model.url + "/" + model.id
+		    	json = "{}"
+		    	method = "DELETE"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		  }
+
+		  
+		  if (resp.status == 200) {
+		    options.success(JSON.parse(resp.responseText))
+		  } else {
+		    options.error(resp);
+		  }
+		  
+		}
 		$("#newUserRequestButton").click(function() {
-			new User({name: $("#newUserRequestName").val()}).save()
+			var u = new User({name: $("#newUserRequestName").val()})
+			u.save()
+			users.add(u)
 		});
 		$("#allUsersRequestButton").click(function() {
 			var allUsersRequest = {}
@@ -189,25 +271,27 @@ var absenceNS = new function() {
 			sendMessage(endpoint, allAbsenceRequest, "GET")
 		});
 		$("#newAbsenceRequestButton").click(function() {
-			new Absence({
+			var a = new Absence({
 				userId : parseInt($("#newAbsenceRequestUserId").val()),
 				description : $("#newAbsenceRequestDescription").val(),
 				start : parseInt($("#newAbsenceRequestStart").val()),
 				end : parseInt($("#newAbsenceRequestEnd").val())
-			}).save()
+			})
+			a.save()
+			absences.add(a)
 		});
 		$("#currentWeekRequestButton").click(function() {
 		    var currentWeekRequest = {}
 		    var endpoint = "/view/current"
 		    sendMessage(endpoint, currentWeekRequest, "GET")
 		});
-		
 		users.on("add", function(user) {
 			var view = new UserView({
 				model : user
 			});
 			$("#user-list").append(view.render().el);
 		})
+		users.add(@Html(users))
 
 		absences.on("add", function(absence) {
 			var view = new AbsenceView({
@@ -215,6 +299,7 @@ var absenceNS = new function() {
 			});
 			$("#absence-list").append(view.render().el);
 		})
+		absences.add(@Html(absences))
 	}
 }
 $(function() {
@@ -247,10 +332,10 @@ $(function() {
     	<button id="allUsersRequestButton">get all users</button>
     </div>
     <div id="newAbsenceRequestDiv"  style=" border : 2px dotted blue">
-    	<div>UserId: <input type="text" id="newAbsenceRequestUserId"></div>
-    	<div>Description: <input type="text" id="newAbsenceRequestDescription"></div>
-    	<div>Start: <input type="text" id="newAbsenceRequestStart"></div>
-    	<div>End: <input type="text" id="newAbsenceRequestEnd"></div>
+    	<div>UserId: <input type="text" id="newAbsenceRequestUserId" placeholder="a valid user id"></div>
+    	<div>Description: <input type="text" id="newAbsenceRequestDescription" placeholder="description"></div>
+    	<div>Start: <input type="text" name="newAbsenceRequestStart" id="newAbsenceRequestStart" value=""></div>
+    	<div>End: <input type="text" name="newAbsenceRequestEnd" id="newAbsenceRequestEnd" value=""></div>
     	<button id="newAbsenceRequestButton">create absence</button>
     </div>
     <div id="allAbsenceRequestDiv"  style=" border : 2px dotted green">

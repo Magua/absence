@@ -16,6 +16,7 @@ import play.api.libs.concurrent.Promise
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.iteratee.Iteratee
 import play.api.libs.Comet
+import play.api.libs.EventSource
 
 object Main extends Controller {
 
@@ -34,11 +35,25 @@ object Main extends Controller {
       }
     }
   }
+  /* experimental */
+  def serverSentEvents(sessionId: String) = Action { request =>
+	  val p: Promise[(Iteratee[String, _], Enumerator[String])] = ConnectedUsers.add(sessionId)
+	  Async {
+		  p.orTimeout("Oops", 1000).map { eitherTupleOrTimeout =>
+		  eitherTupleOrTimeout.fold(
+				  tuple => Ok.feed(tuple._2 &> EventSource()).withHeaders(CONTENT_TYPE -> "text/event-stream" ),
+				  timeout => InternalServerError(timeout))
+		  }
+	  }
+  }
 
   def wsTest() = Action { request =>
+    implicit val formats = net.liftweb.json.DefaultFormats
     val webSocketPort = current.configuration.getString("web.socket.port").getOrElse("900")
     val sessionId = newSessionId()
-    Ok(views.html.wstest(webSocketPort, sessionId)).withSession(request.session + ("uuid" -> sessionId))
+    val usersJsonString = Serialization.write(User.all())
+    val absencesJsonString = Serialization.write(Absence.all())
+    Ok(views.html.wstest(webSocketPort, sessionId, usersJsonString, absencesJsonString)).withSession(request.session + ("uuid" -> sessionId))
   }
 
   def connect(sessionId: String) = WebSocket.async[String] { request =>
