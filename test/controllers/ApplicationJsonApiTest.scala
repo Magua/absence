@@ -18,7 +18,7 @@ class ApplicationJsonApiTest extends Specification {
     "work with correct json" in {
       running(FakeApplication()) {
         makeSureUserIdOneExist()
-        val requestJson = Json.parse("""{"userId":1,"description":"Parental leave","start":%1$s,"end":%2$s}""" format(oneWeekAgo, now))
+        val requestJson = Json.parse("""{"userId":1,"description":"Parental leave","start":%1$s,"end":%2$s}""" format (oneWeekAgo, now))
         val json = AnyContentAsJson(requestJson)
         val Some(result) = routeAndCall(FakeRequest(POST, "/absence", FakeHeaders(Map(
           "Content-type" -> Seq("application/json"),
@@ -33,21 +33,21 @@ class ApplicationJsonApiTest extends Specification {
       }
     }
     "fail with incorrect json" in {
-    	running(FakeApplication()) {
-//    		makeSureUserIdOneExist()
-//    		val requestJson = Json.parse("""{"incorrectJson":true}""")
-//    		val json = AnyContentAsJson(requestJson)
-//    		val Some(result) = routeAndCall(FakeRequest(POST, "/absence", FakeHeaders(Map(
-//    				"Content-type" -> Seq("application/json"),
-//    				"Cookie" -> Seq("PLAY_SESSION=f0d369f0c4a27a99ad1a08ec5f62936d082b350a-saidHello%3Ayes%00uuid%3Ae63507f3-f527-476a-980a-84549ba54e1d"))),
-//    				json))
-// 			contentType(result) must beSome("application/json")
-//    		val content = new String(contentAsBytes(result))
-//    		println(content)
-//    		val jsonResponse = Json.parse(content)
-//    		(jsonResponse \ "rc").as[Int] must beEqualTo(1000)
-    		"TODO" must beEqualTo("TODO")
-    	}
+      running(FakeApplication()) {
+        //    		makeSureUserIdOneExist()
+        //    		val requestJson = Json.parse("""{"incorrectJson":true}""")
+        //    		val json = AnyContentAsJson(requestJson)
+        //    		val Some(result) = routeAndCall(FakeRequest(POST, "/absence", FakeHeaders(Map(
+        //    				"Content-type" -> Seq("application/json"),
+        //    				"Cookie" -> Seq("PLAY_SESSION=f0d369f0c4a27a99ad1a08ec5f62936d082b350a-saidHello%3Ayes%00uuid%3Ae63507f3-f527-476a-980a-84549ba54e1d"))),
+        //    				json))
+        // 			contentType(result) must beSome("application/json")
+        //    		val content = new String(contentAsBytes(result))
+        //    		println(content)
+        //    		val jsonResponse = Json.parse(content)
+        //    		(jsonResponse \ "rc").as[Int] must beEqualTo(1000)
+        "TODO" must beEqualTo("TODO")
+      }
     }
   }
 }
