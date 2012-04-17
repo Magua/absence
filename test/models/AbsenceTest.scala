@@ -9,22 +9,53 @@ import play.api.libs.json._
 import play.api._
 import play.api.mvc._
 import net.liftweb.json.Serialization
+import java.util.Date
+import org.specs2.specification.BeforeExample
+import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 class AbsenceTest extends Specification {
-
+  val now = new java.util.Date().getTime()
+  val oneWeekAgo = now - (1000 * 60 * 60 * 24 * 7)
+  def before = User.create(User(name = "Name"))
+  def sdf = {
+	  val t = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+	  t.setTimeZone(TimeZone.getTimeZone("UTC"))
+	  t
+  }
   implicit val formats = net.liftweb.json.DefaultFormats
 
+  "make sure simple date format works as expected" in {
+    val dString1 = "2012-01-01T20:00:00Z"
+    val d1 = sdf.parse(dString1)
+    val dString2 = sdf.format(d1)
+    dString1 must equalTo(dString2)
+  }
   "make sure serialization and deserialisation does not break object" in {
-    val absence = Absence(1234, 432, "Parental leave", 12345, 123456)
+    val absence = Absence(1234, 432, "Parental leave", oneWeekAgo, now)
     val jsonString = Serialization.write[Absence](absence)
-    println(jsonString)
+    println("*543'543'543'2543'25432'" + jsonString)
     val absenceII = Serialization.read[Absence](jsonString)
-    absence must equalTo(absenceII)
+    absence.toString() must equalTo(absenceII.toString)
   }
 
   "make sure serialization works if optional id is missing" in {
-    val jsonString = ("""{"userId":4321,"description":"Parental leave","start":12345,"end":123456}""")
+    val jsonString = ("""{"userId":4321,"description":"Parental leave","start":432143214321,"end":43254354354344}""")
     val absence = Serialization.read[Absence](jsonString)
     absence.id must equalTo(-1)
+    absence.start must equalTo(432143214321L)
+    absence.id must equalTo(-1)
+  }
+
+  "verify absence crudf methods" in {
+    running(FakeApplication()) {
+      val user = before
+      val a = Absence.create(new Absence(user.id, "Frånvaro", oneWeekAgo, now))
+      val aII = Absence.read(a.id).get
+      a must equalTo(aII)
+      Absence.delete(a.id)
+      val shouldBeNone = Absence.read(a.id)
+      shouldBeNone must equalTo(None)
+    }
   }
 }

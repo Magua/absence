@@ -11,7 +11,7 @@ import anorm.SqlParser._
 import anorm._
 import anorm.SqlParser._
 
-case class Sprint(id: Pk[Long], sprint_nr: Long, start_date: Option[Date], end_date: Option[Date]) 
+case class Sprint(id: Pk[Long], sprint_nr: Long, start: Long, end: Long) 
 
 object Sprint{
   
@@ -23,10 +23,10 @@ object Sprint{
   val simple = {
     get[Pk[Long]]("sprint.id") ~
     get[Long]("sprint.sprint_nr") ~
-    get[Option[Date]]("sprint.start_date") ~
-    get[Option[Date]]("sprint.end_date") map {
-      case id~sprint_nr~start_date~end_date => Sprint(
-        id, sprint_nr, start_date, end_date
+    get[Long]("sprint.start") ~
+    get[Long]("sprint.end") map {
+      case id~sprint_nr~start~end => Sprint(
+        id, sprint_nr, start, end
       )
     }
   }
@@ -48,14 +48,14 @@ object Sprint{
       SQL(
         """
           insert into sprint values (
-            {id}, {sprint_nr}, {start_date}, {end_date}
+            {id}, {sprint_nr}, {start}, {end}
           )
         """
       ).on(
         'id -> id,
         'sprint_nr -> sprint.sprint_nr,
-        'start_date -> sprint.start_date,
-        'end_date -> sprint.end_date
+        'start -> sprint.start,
+        'end -> sprint.end
       ).executeUpdate()
       
       sprint.copy(id = Id(id))

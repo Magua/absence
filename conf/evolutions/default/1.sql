@@ -6,8 +6,8 @@ CREATE SEQUENCE sprint_seq start with 1000;
 CREATE TABLE sprint (
     id bigint not null primary key,
     sprint_nr bigint not null,
-    start_date timestamp,
-    end_date timestamp
+    start bigint,
+    end bigint
 );
 
 CREATE SEQUENCE user_id_seq;
@@ -37,5 +37,5 @@ DROP SEQUENCE user_id_seq;
 DROP TABLE absence;
 DROP SEQUENCE absence_id_seq;
 
-drop table if exists sprint;
-drop sequence if exists sprint_seq;
+DROP TABLE if exists sprint;
+DROP SEQUENCE if exists sprint_seq;

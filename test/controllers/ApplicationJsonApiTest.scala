@@ -12,12 +12,13 @@ import play.api.mvc.AnyContentAsJson
 
 class ApplicationJsonApiTest extends Specification {
   def makeSureUserIdOneExist() = User.create(User(name = "Name"))
-
+  val now = new java.util.Date().getTime()
+  val oneWeekAgo = now - (1000 * 60 * 60 * 24 * 7)
   "Absence CRUDF methods" should {
     "work with correct json" in {
       running(FakeApplication()) {
         makeSureUserIdOneExist()
-        val requestJson = Json.parse("""{"userId":1,"description":"Parental leave","start":12345,"end":123456}""")
+        val requestJson = Json.parse("""{"userId":1,"description":"Parental leave","start":%1$s,"end":%2$s}""" format(oneWeekAgo, now))
         val json = AnyContentAsJson(requestJson)
         val Some(result) = routeAndCall(FakeRequest(POST, "/absence", FakeHeaders(Map(
           "Content-type" -> Seq("application/json"),

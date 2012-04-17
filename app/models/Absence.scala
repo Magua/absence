@@ -3,6 +3,7 @@ import anorm._
 import anorm.SqlParser._
 import play.api.db._
 import play.api.Play.current
+import java.util.Date
 
 case class Absence(id: Long = -1, userId: Long, description: String, start: Long, end: Long) {
   def this(userId: Long, description: String, start: Long, end: Long) = this(-1, userId, description, start, end)
@@ -22,6 +23,22 @@ object Absence {
       }.head
 
       Absence(id, absence.userId, absence.description, absence.start, absence.end)
+    }
+  }
+  def read(id: Long): Option[Absence] = {
+    DB.withConnection { implicit connection =>
+      SQL("select * from absence where id = {id}").on(
+        'id -> id
+      ).as(absence.singleOpt)
+    }
+  }
+  def update(a: Absence): Long = {
+    DB.withConnection { implicit c =>
+      SQL("update absence set description={description}, start={start}, end={end} where id = {id}").on(
+        'description -> a.description,
+        'start -> a.start,
+        'end -> a.end,
+        'id -> a.id).executeUpdate()
     }
   }
   def all(): List[Absence] = DB.withConnection { implicit c =>

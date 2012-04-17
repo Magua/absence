@@ -1,10 +1,9 @@
 package models
 import org.specs2.mutable.Specification
-
 import play.api.test._
 import play.api.test.Helpers._
-
 import anorm._
+import org.joda.time.Days
 
 class SprintTest extends Specification {
 
@@ -19,19 +18,20 @@ class SprintTest extends Specification {
     "be retrieved by id" in {
 
       running(FakeApplication(additionalConfiguration = inMemoryDatabase())) {
+        val now = new java.util.Date().getTime()
+        val oneWeekAgo = now - (1000 * 60 * 60 * 24 * 7)
 
         if (Sprint.findAll.isEmpty) {
-
           Seq(
-            Sprint(Id(1), 998, Some(date("2012-07-01")), Some(date("2012-08-01"))),
-            Sprint(Id(2), 999, Some(date("2012-01-01")), Some(date("2012-01-08")))).foreach(Sprint.create)
+            Sprint(Id(1), 998, oneWeekAgo, now),
+            Sprint(Id(2), 999, oneWeekAgo, now)).foreach(Sprint.create)
 
         }
 
         val Some(sprint) = Sprint.findById(2)
 
-        sprint.start_date must beSome.which(dateIs(_, "2012-01-01"))
-        sprint.end_date must beSome.which(dateIs(_, "2012-01-08"))
+        sprint.start must equalTo(oneWeekAgo)
+        sprint.end must equalTo(now)
         sprint.sprint_nr must equalTo(999)
 
       }
