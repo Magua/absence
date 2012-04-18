@@ -31,23 +31,24 @@ class UserTest extends Specification {
   
   "test crud methods" in {
     running(FakeApplication()) {
+      val initialSize = User.all().size
       val user = User.create(User(name = "Ove"))
-      val sameUser = User.all()(0)
+      val sameUser = User.read(user.id).get
       sameUser.id must equalTo(user.id)
       sameUser.name must equalTo("Ove")
       val affectedRows = User.update(User(user.id, "Ove Rytter"))
       affectedRows must equalTo(1)
       
-      val updatedUser = User.all()(0)
+      val updatedUser = User.read(user.id).get
       updatedUser.name must equalTo("Ove Rytter")
       
       val size = User.all().size
-      size must equalTo(1)
+      size must equalTo(initialSize + 1)
       
       val effectedDeleteRows = User.delete(updatedUser.id)
       
       val newSize = User.all().size
-      newSize must equalTo(0)
+      newSize must equalTo(initialSize)
     }
   }
 }

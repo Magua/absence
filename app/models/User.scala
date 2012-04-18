@@ -25,6 +25,13 @@ object User {
       User(id, u.name)
     }
   }
+  def read(id: Long): Option[User] = {
+    DB.withConnection { implicit connection =>
+      SQL("select * from user where id = {id}").on(
+        'id -> id
+      ).as(user.singleOpt)
+    }
+  }
   def update(u: User): Long = {
 	  DB.withConnection { implicit c =>
 		  SQL("update user set name={name} where id = {id}").on(
