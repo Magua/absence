@@ -316,6 +316,8 @@ $(function() {
 	<li>
 		<span><%= id %> - </span>
 		<span class="liAbsenceDescription"><%= description %></span>
+		<span class="liAbsenceStart"><%= new Date(start).toString("yyyy-MM-dd HH:mm") %></span> <->
+		<span class="liAbsenceEnd"><%= new Date(end).toString("yyyy-MM-dd HH:mm") %></span>
 		<a class="liAbsenceDelete" style="colour:red" href="#">X</a></li>
 </script>
 
