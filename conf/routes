@@ -3,8 +3,7 @@
 # ~~~~
 
 # Home page
-GET     /                           	controllers.Main.wsTest
-GET     /wsTest                     	controllers.Main.wsTest
+GET     /                           	controllers.Main.absence
 
 # WebSocket
 GET     /connect/:sessionId         	controllers.Main.connect(sessionId: String)

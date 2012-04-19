@@ -1,0 +1,55 @@
+@(webSocketPort: String, sessionId: String, users: String, absences: String)
+@main("Absence") {
+    
+<script type="text/javascript" charset="utf-8">
+$(function() {
+	absenceNS.init()
+	absenceNS.users.add(@Html(users))
+	absenceNS.absences.add(@Html(absences))
+
+})
+</script>
+<script type="text/template" id="user-template">
+	<li>
+		<span><%= id %> - </span>
+		<span class="liUserName"><%= name %></span>
+		<a class="liUserDelete" style="colour:red" href="#">X</a>
+		<ul id="absence-list"></ul>
+	</li>
+</script>
+<script type="text/template" id="absence-template">
+	<li>
+		<span><%= id %> - </span>
+		<span class="liAbsenceDescription"><%= description %></span>
+		<span class="liAbsenceStart"><%= new Date(start).toString("yyyy-MM-dd HH:mm") %></span> <->
+		<span class="liAbsenceEnd"><%= new Date(end).toString("yyyy-MM-dd HH:mm") %></span>
+		<a class="liAbsenceDelete" style="colour:red" href="#">X</a></li>
+</script>
+
+
+	<div>
+    	<ul id="user-list"></ul>
+    	
+    </div>
+    <div id="newUserRequestDiv"  style=" border : 2px dotted red">
+    	<div>Name: <input type="text" id="newUserRequestName"></div>
+    	<button id="newUserRequestButton">create user</button>
+    </div>
+    <div id="allUsersRequestDiv"  style=" border : 2px dotted pink">
+    	<button id="allUsersRequestButton">get all users</button>
+    </div>
+    <div id="newAbsenceRequestDiv"  style=" border : 2px dotted blue">
+    	<div>UserId: <input type="text" id="newAbsenceRequestUserId" placeholder="a valid user id"></div>
+    	<div>Description: <input type="text" id="newAbsenceRequestDescription" placeholder="description"></div>
+    	<div>Start: <input type="text" name="newAbsenceRequestStart" id="newAbsenceRequestStart" value=""></div>
+    	<div>End: <input type="text" name="newAbsenceRequestEnd" id="newAbsenceRequestEnd" value=""></div>
+    	<button id="newAbsenceRequestButton">create absence</button>
+    </div>
+    <div id="allAbsenceRequestDiv"  style=" border : 2px dotted green">
+    	<button id="allAbsenceRequestButton">get all absence</button>
+    </div>
+    <div id="currentWeekRequestDiv"  style=" border : 2px dotted purple">
+      <button id="currentWeekRequestButton">get current week</button>
+    </div>
+    <div id="log"></div>
+}

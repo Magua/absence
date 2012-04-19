@@ -47,13 +47,13 @@ object Main extends Controller {
 	  }
   }
 
-  def wsTest() = Action { request =>
+  def absence() = Action { request =>
     implicit val formats = net.liftweb.json.DefaultFormats
     val webSocketPort = current.configuration.getString("web.socket.port").getOrElse("900")
     val sessionId = newSessionId()
     val usersJsonString = Serialization.write(User.all())
     val absencesJsonString = Serialization.write(Absence.all())
-    Ok(views.html.wstest(webSocketPort, sessionId, usersJsonString, absencesJsonString)).withSession(request.session + ("uuid" -> sessionId))
+    Ok(views.html.absence(webSocketPort, sessionId, usersJsonString, absencesJsonString)).withSession(request.session + ("uuid" -> sessionId))
   }
 
   def connect(sessionId: String) = WebSocket.async[String] { request =>
