@@ -133,8 +133,51 @@ var absenceNS = new function() {
 	var replaceAll = function(txt, replace, replacement) {
 	  return txt.replace(new RegExp(replace, 'g'), replacement);
 	}
-	this.init = function() {
-		var source = new EventSource('serverSentEvents/@sessionId');
+	Backbone.sync = function(crud, model, options) {
+
+		  var resp, url, json, method
+
+		  switch (crud) {
+		    case "create":  {
+		    	url = model.url
+		    	json = model
+		    	method = "POST"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "read": {
+		    	url = model.id ? model.url + "/" + model.id : model.url
+		    			json = "{}"
+		    	method = "GET"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "update":  {
+		    	url = model.url
+		    	json = model
+		    	method = "PUT"                       
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		    case "delete": {
+		    	url = model.url + "/" + model.id
+		    	json = "{}"
+		    	method = "DELETE"
+			  resp = sendMessage(url, json, method)
+		    	break
+		    }
+		  }
+
+		  
+		  if (resp.status == 200) {
+		    options.success(JSON.parse(resp.responseText))
+		  } else {
+		    options.error(resp);
+		  }
+		  
+		}
+	this.init = function(sessionId) {
+		var source = new EventSource('serverSentEvents/' + sessionId);
 		source.addEventListener('message', function(e) {
 			console.log(e)
 			// TODO fix crazy unescape, this string should not be escaped in the first place (Chrome only?)
@@ -153,6 +196,7 @@ var absenceNS = new function() {
 		    onclose()
 		  }
 		}, false);
+
 		/* User View */
 		var UserView = Backbone.View.extend({
 			tagName : "li",
@@ -207,50 +251,21 @@ var absenceNS = new function() {
 				this.model.destroy()
 			}
 		});
+		
+		this.users.on("add", function(user) {
+			var view = new UserView({
+				model : user
+			});
+			$("#user-list").append(view.render().el);
+		})
 
-		Backbone.sync = function(crud, model, options) {
+		this.absences.on("add", function(absence) {
+			var view = new AbsenceView({
+				model : absence
+			});
+			$("#absence-list").append(view.render().el);
+		})
 
-		  var resp, url, json, method
-
-		  switch (crud) {
-		    case "create":  {
-		    	url = model.url
-		    	json = model
-		    	method = "POST"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "read": {
-		    	url = model.id ? model.url + "/" + model.id : model.url
-		    			json = "{}"
-		    	method = "GET"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "update":  {
-		    	url = model.url
-		    	json = model
-		    	method = "PUT"                       
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "delete": {
-		    	url = model.url + "/" + model.id
-		    	json = "{}"
-		    	method = "DELETE"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		  }
-
-		  
-		  if (resp.status == 200) {
-		    options.success(JSON.parse(resp.responseText))
-		  } else {
-		    options.error(resp);
-		  }
-		  
-		}
 		$("#newUserRequestButton").click(function() {
 			var u = new User({name: $("#newUserRequestName").val()})
 			u.save()
@@ -281,19 +296,5 @@ var absenceNS = new function() {
 		    var endpoint = "/view/current"
 		    sendMessage(endpoint, currentWeekRequest, "GET")
 		});
-
-		this.users.on("add", function(user) {
-			var view = new UserView({
-				model : user
-			});
-			$("#user-list").append(view.render().el);
-		})
-
-		this.absences.on("add", function(absence) {
-			var view = new AbsenceView({
-				model : absence
-			});
-			$("#absence-list").append(view.render().el);
-		})
 	}
 }

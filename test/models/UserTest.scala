@@ -15,7 +15,7 @@ class UserTest extends Specification {
   implicit val formats = net.liftweb.json.DefaultFormats
 
   "make sure serialization and deserialisation does not break object" in {
-    val u = User(-1, "Dolores Clayborn")
+    val u = User(-1, "Dolores Claiborn")
 
     val jsonString = Serialization.write[User](u)
     println(jsonString)
