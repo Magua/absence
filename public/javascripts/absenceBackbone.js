@@ -269,7 +269,7 @@ var absenceNS = new function() {
 		$("#newUserRequestButton").click(function() {
 			var u = new User({name: $("#newUserRequestName").val()})
 			u.save()
-			users.add(u)
+			absenceNS.users.add(u)
 		});
 		$("#allUsersRequestButton").click(function() {
 			var allUsersRequest = {}
@@ -289,7 +289,7 @@ var absenceNS = new function() {
 				end : parseInt($("#newAbsenceRequestEnd").val())
 			})
 			a.save()
-			absences.add(a)
+			absenceNS.absences.add(a)
 		});
 		$("#currentWeekRequestButton").click(function() {
 		    var currentWeekRequest = {}
