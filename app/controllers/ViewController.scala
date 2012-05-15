@@ -19,8 +19,12 @@ import controllers.JsonUtil._
 object ViewController extends Controller {
 
   def getCurrentWeek = Action { implicit request =>
-    ConnectedUsers.connectedUsersActor ! CurrentWeek(uuid)
-    jsonOk()
+    Async {
+      val a = readJson[Absence](request)
+      ConnectedUsers.send(CurrentWeek(uuid)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
 
 }

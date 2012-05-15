@@ -10,9 +10,9 @@ var absenceNS = new function() {
 			}
 		},*/
 		initialize: function() {
-			this.on("error", function(model, error) {
-				alert("Absence:" + JSON.stringify(model) + " " + JSON.stringify(error))
-			})
+//			this.on("error", function(model, error) {
+//				alert("Absence:" + JSON.stringify(model) + " " + JSON.stringify(error))
+//			})
 		},
 		startDate: function() {
 			new Date(start)
@@ -30,9 +30,9 @@ var absenceNS = new function() {
 			}
 		},*/
 		initialize: function() {
-			this.on("error", function(model, error) {
-				alert("User:" + JSON.stringify(model) + " " + JSON.stringify(error))
-			})
+//			this.on("error", function(model, error) {
+//				alert("User:" + JSON.stringify(model) + " " + JSON.stringify(error))
+//			})
 		},
 		url: '/user'
 	})
@@ -53,20 +53,20 @@ var absenceNS = new function() {
 	this.absences = new Absences()
 
 	var incommingUser = function(user) {
-		var existingUser = users.get(user.id)
+		var existingUser = absenceNS.users.get(user.id)
 		if (existingUser) {
 			existingUser.set({name: user.name})
 		} else {
-			users.add(new User(user))
+			absenceNS.users.add(new User(user))
 		}
 	}
 	
 	var incommingAbsence = function(absence) {
-		var existingAbsence = absences.get(absence.id)
+		var existingAbsence = absenceNS.absences.get(absence.id)
 		if (existingAbsence) {
 			existingAbsence.set({description: existingAbsence.name})
 		} else {
-			absences.add(new Absence(absence))
+			absenceNS.absences.add(new Absence(absence))
 		}
 	}
 
@@ -88,9 +88,9 @@ var absenceNS = new function() {
 				incommingAbsence(json.absenceList[i])
 			}
 		} else if (json.userDelete) {
-			users.remove({id: json.userDelete.id})
+			absenceNS.users.remove({id: json.userDelete.id})
 		} else if (json.absenceDelete) {
-			absences.remove({id: json.absenceDelete.id})
+			absenceNS.absences.remove({id: json.absenceDelete.id})
 		}
 	}
 	var onopen = function() {

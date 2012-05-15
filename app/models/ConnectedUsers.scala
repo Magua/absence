@@ -10,11 +10,38 @@ import akka.pattern.ask
 import scala.collection.mutable.StringBuilder
 import play.api.Play.current
 import net.liftweb.json.Serialization._
+object Beacon {
+  
+  def apply(connectedUsersActor: ActorRef) {
+    
+    // Create an Iteratee that log all messages to the console.
+    val loggerIteratee = Iteratee.foreach[String](event => Logger("beacon").info(event))
+    
+    implicit val timeout = Timeout(1 second)
 
+    connectedUsersActor ? (Join("beacon")) map {
+      case Connected(robotChannel) => 
+        // Apply this Enumerator on the logger.
+        robotChannel |>> loggerIteratee
+    }
+
+    Akka.system.scheduler.schedule(
+      60 seconds,
+      60 seconds,
+      connectedUsersActor,
+      BeaconMessage("Beacon...")
+    )
+  }
+  
+}
 object ConnectedUsers {
 
   implicit val timeout = Timeout(1 second)
-  lazy val connectedUsersActor = Akka.system.actorOf(Props[ConnectedUsers])
+  private lazy val connectedUsersActor = {
+    val ref = Akka.system.actorOf(Props[ConnectedUsers])
+    Beacon(ref)
+    ref
+  }
 
   def add(sessionId: String): Promise[(Iteratee[String, _], Enumerator[String])] = {
     (connectedUsersActor ? Join(sessionId)).asPromise.map {
@@ -27,7 +54,7 @@ object ConnectedUsers {
           println("quit")
           connectedUsersActor ! Quit(sessionId)
         }
-
+        
         (iteratee, enumerator)
       }
     }
@@ -69,9 +96,13 @@ class ConnectedUsers extends Actor {
     }
 
     case NotifyJoin(sessionId) => {
+      println(sessionId + " joined")
     }
-
+    case BeaconMessage(msg) => {
+      notifyAll("beacon", Map("time" -> new java.util.Date().getTime()), "all sessions")
+    }
     case Quit(sessionId) => {
+      users = users - (sessionId)
     }
     case CreateAbsence(sessionId, a) => {
     	val storedAbsence = Absence.create(a)
@@ -86,12 +117,19 @@ class ConnectedUsers extends Actor {
     	notifyAll("absence", absenceJson, sessionId)
     }
     case DeleteAbsence(sessionId, id) => {
-    	Absence.delete(id)
-    	notifyAll("absenceDelete", Map("id" -> id), sessionId)
+      val affectedRows = Absence.delete(id)
+      var json: StringBuffer = new StringBuffer()
+      if (affectedRows == 1) {
+        json.append(ConnectedUsers.toJson(Map("id" -> id)))
+      } else {
+        json.append(ConnectedUsers.toJson(Map("error" -> true, "affectedRows" -> affectedRows)))
+      }
+      sender ! json.toString()
+      notifyAll("absenceDelete", json.toString(), sessionId)
     }
     case FindAllAbsence(sessionId) => {
       val all = Absence.all()
-      notify(sessionId, "absenceList", write[List[Absence]](all))
+      sender ! write[List[Absence]](all)
     }
     case FindAllUsers(sessionId) => {
       sender ! write[List[User]](User.all())
@@ -145,9 +183,9 @@ class ConnectedUsers extends Actor {
   }
   def notifyAll(name: String, msg: String, exeptThisSessionId: String) {
     val messageWithName = addJsonName(name, msg)
-    println("ConnectedUsers.notifyAll(" + users.size + ") message: " + msg)
+    println("ConnectedUsers.notifyAll(" + users.size + ") message: " + messageWithName)
     users.foreach {
-      case (sessionId, _) if sessionId.equals(exeptThisSessionId) => None
+      //case (sessionId, _) if sessionId.equals(exeptThisSessionId) => None
       case (_, channel) => channel.push(messageWithName)
     }
   }
@@ -155,6 +193,7 @@ class ConnectedUsers extends Actor {
     """{"%1$s":%2$s}""" format (name, message)
   }
 }
+case class BeaconMessage(msg: String)
 case class Join(sessionId: String)
 case class FindAllAbsence(sessionId: String)
 case class FindAllUsers(sessionId: String)

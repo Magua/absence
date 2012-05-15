@@ -31,15 +31,21 @@ object AbsenceController extends Controller {
   }
   
   def delete(id: Long) = Action { implicit request =>
-    ConnectedUsers.connectedUsersActor ! DeleteAbsence(uuid, id)
-    jsonOk()
+    Async {
+      ConnectedUsers.send(DeleteAbsence(uuid, id)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
   def findInSprint(sprintId: Long) = TODO
 
   def findAll = Action { implicit request =>
-    ConnectedUsers.connectedUsersActor ! FindAllAbsence(uuid)
-    jsonOk()
+     Async {
+      ConnectedUsers.send( FindAllAbsence(uuid)).map { response =>
+        jsonOk(response)
+      }
+    }
   }
   
 }
