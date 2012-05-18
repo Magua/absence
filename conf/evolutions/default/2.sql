@@ -5,8 +5,8 @@
 INSERT INTO user (name) values('Dolores Claiborn');
 INSERT INTO user (name) values('Sheldon Cooper');
 
-INSERT INTO absence (userid, description, start, end) values (1, 'Vacation: Home gardening.', 1334911562576, 1335084362576);
-INSERT INTO absence (userid, description, start, end) values (2, 'Comic-Con International 2012!', 1334738762576, 1335948362576);
+INSERT INTO absence (userid, description, start, end) values (1, 'Vacation: Home gardening.', 1337251933496, 1337255652120);
+INSERT INTO absence (userid, description, start, end) values (2, 'Comic-Con International 2012!', 1337165533496, 1337169252120);
  
 # --- !Downs
 

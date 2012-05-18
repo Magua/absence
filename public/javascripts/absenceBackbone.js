@@ -251,6 +251,68 @@ var absenceNS = new function() {
 				this.model.destroy()
 			}
 		});
+		var EventView = Backbone.View.extend({
+		    render: function() {
+		        this.$el.dialog({
+		            modal: true,
+		            title: 'New Event',
+		            buttons: {'Ok': this.save, 'Cancel': this.close}
+		        });
+		 
+		        return this;
+		    },
+		    close: function() {
+		        this.$el.dialog('close');
+		    },
+		    save: function() {
+		    	this.model.set({'title': this.$('#title').val(), 'color': this.$('#color').val()});
+		    	this.collection.create(this.model, {success: this.close});
+		    }
+		});
+
+		var EventsView = Backbone.View.extend({
+	        initialize: function(){
+	            this.collection.bind('reset', this.addAll, this);
+	        },
+	        render: function() {
+	            this.$el.fullCalendar({
+	                header: {
+	                    left: 'prev,next today',
+	                    center: 'title',
+	                    right: 'month,basicWeek,basicDay',
+	                    ignoreTimezone: false
+	                },
+	                selectable: true,
+	                selectHelper: true,
+	                editable: true,
+	                weekends: false,
+	                select: this.select
+	            });
+	        },
+	        addAll: function(){
+		        var v = [{
+		            "title":"Event1",
+		            "start":new Date(),
+		            "allDay":true
+		        }]
+		          this.collection.forEach(function(a) {
+		            v.push({
+		              "id":a.get("id"),
+		              "title":a.get("description"),
+		              "start":a.get("start")/1000,
+		              "end":a.get("end")/1000})
+		          })
+	        		this.$el.fullCalendar('addEventSource', v);
+	        },
+	        select: function(startDate, endDate) {
+	        	new EventView().render();
+   	            var eventView = new EventView();
+	            eventView.collection = this.collection;
+	            eventView.model = new Event({start: startDate, end: endDate, el: $('#eventDialog')});
+	            eventView.render();
+
+	        }
+	    });
 		
 		this.users.on("add", function(user) {
 			var view = new UserView({
@@ -296,5 +358,16 @@ var absenceNS = new function() {
 		    var endpoint = "/view/current"
 		    sendMessage(endpoint, currentWeekRequest, "GET")
 		});
+//		$('#calendar').fullCalendar({
+//			weekends: false // will hide Saturdays and Sundays
+//		})
+//    
+//		$('#calendar').fullCalendar({
+//			// put your options and callbacks here
+//		})
+    
+		new EventsView({el: $("#calendar"), collection: this.absences}).render();
+		this.absences.fetch();
+
 	}
 }
