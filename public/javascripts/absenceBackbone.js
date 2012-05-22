@@ -14,6 +14,13 @@ var absenceNS = new function() {
 //				alert("Absence:" + JSON.stringify(model) + " " + JSON.stringify(error))
 //			})
 		},
+        toEvent: function() {
+        	return {
+	              "id":this.get("id"),
+	              "title":this.get("description"),
+	              "start":this.get("start")/1000,
+	              "end":this.get("end")/1000}
+        },
 		startDate: function() {
 			new Date(start)
 		},
@@ -45,6 +52,13 @@ var absenceNS = new function() {
 
 	/* List of Absence models List[Absence] */
 	var Absences = Backbone.Collection.extend({
+        toEvents: function() {
+        	var events = []
+        	this.forEach(function(a) {
+        		events.push(a.toEvent())
+        	})
+        	return events
+        },
 		model : Absence,
 		url : '/absence'
 	})
@@ -252,6 +266,9 @@ var absenceNS = new function() {
 			}
 		});
 		var EventView = Backbone.View.extend({
+			initialize: function(){
+				_.bindAll(this);
+			},
 		    render: function() {
 		        this.$el.dialog({
 		            modal: true,
@@ -262,18 +279,22 @@ var absenceNS = new function() {
 		        return this;
 		    },
 		    close: function() {
-		        this.$el.dialog('close');
+		    	this.$el.dialog('close');
 		    },
 		    save: function() {
-		    	this.model.set({'title': this.$('#title').val(), 'color': this.$('#color').val()});
-		    	this.collection.create(this.model, {success: this.close});
+		    	this.model.set({userId: 1, description: this.$('#title').val()}).save();
+		    	this.close();
 		    }
 		});
 
 		var EventsView = Backbone.View.extend({
 	        initialize: function(){
 	            this.collection.bind('reset', this.addAll, this);
+	            this.collection.bind('add', this.addOne, this);
 	        },
+		    addOne: function(absence) {
+		        this.$el.fullCalendar('renderEvent', absence.toEvent());
+		    },
 	        render: function() {
 	            this.$el.fullCalendar({
 	                header: {
@@ -289,26 +310,12 @@ var absenceNS = new function() {
 	                select: this.select
 	            });
 	        },
-	        addAll: function(){
-		        var v = [{
-		            "title":"Event1",
-		            "start":new Date(),
-		            "allDay":true
-		        }]
-		          this.collection.forEach(function(a) {
-		            v.push({
-		              "id":a.get("id"),
-		              "title":a.get("description"),
-		              "start":a.get("start")/1000,
-		              "end":a.get("end")/1000})
-		          })
-	        		this.$el.fullCalendar('addEventSource', v);
+	        addAll: function() {
+	          this.$el.fullCalendar('addEventSource', this.collection.toEvents());
 	        },
 	        select: function(startDate, endDate) {
-	        	new EventView().render();
-   	            var eventView = new EventView();
-	            eventView.collection = this.collection;
-	            eventView.model = new Event({start: startDate, end: endDate, el: $('#eventDialog')});
+   	            var eventView = new EventView({el: $('#eventDialog'),
+   	            	model: new Absence({start: startDate.getTime(), end: endDate.getTime()})});
 	            eventView.render();
 
 	        }
