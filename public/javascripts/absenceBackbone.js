@@ -247,7 +247,11 @@ var absenceNS = new function() {
 	                eventClick: this.eventClick,
 	                eventDrop: this.eventDropOrResize,
 	                eventResize: this.eventDropOrResize,
-	                events: "http://www.google.com/calendar/feeds/en.swedish%23holiday%40group.v.calendar.google.com/public/basic"
+	                events: {
+	                    url: "http://www.google.com/calendar/feeds/en.swedish%23holiday%40group.v.calendar.google.com/public/basic",
+	                    color: 'red'   // an option!
+	                    //textColor: 'black' // an option!
+	                }
 
 	            });
 	        },
