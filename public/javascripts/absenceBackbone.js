@@ -78,7 +78,9 @@ var absenceNS = new function() {
 	var incommingAbsence = function(absence) {
 		var existingAbsence = absenceNS.absences.get(absence.id)
 		if (existingAbsence) {
-			existingAbsence.set({description: existingAbsence.name})
+			existingAbsence.set({description: absence.description,
+				start: absence.start,
+				end: absence.end})
 		} else {
 			absenceNS.absences.add(new Absence(absence))
 		}
@@ -272,11 +274,16 @@ var absenceNS = new function() {
 		    render: function() {
 		        this.$el.dialog({
 		            modal: true,
-		            title: 'New Event',
-		            buttons: {'Ok': this.save, 'Cancel': this.close}
+		            title: 'New/Edit Event',
+		            buttons: {'Ok': this.save, 'Cancel': this.close},
+		        	open: this.open
 		        });
 		 
 		        return this;
+		    },
+		    open: function() {
+		        this.$('#title').val(this.model.get('description'));
+		        this.$('#color').val(this.model.get('userId'));
 		    },
 		    close: function() {
 		    	this.$el.dialog('close');
@@ -291,6 +298,15 @@ var absenceNS = new function() {
 	        initialize: function(){
 	            this.collection.bind('reset', this.addAll, this);
 	            this.collection.bind('add', this.addOne, this);
+	            this.collection.bind('change', this.change, this);
+	        },
+	        change: function(absenceEvent) {
+	            var fcEvent = this.$el.fullCalendar('clientEvents', absenceEvent.get('id'))[0];
+	            fcEvent.title = absenceEvent.get('description');
+	            fcEvent.color = absenceEvent.get('userId');
+	            fcEvent.start = absenceEvent.get('start') / 1000;
+	            fcEvent.end = absenceEvent.get('end') > 0 ? absenceEvent.get('end') / 1000 : 0;
+	            this.$el.fullCalendar('updateEvent', fcEvent);
 	        },
 		    addOne: function(absence) {
 		        this.$el.fullCalendar('renderEvent', absence.toEvent());
@@ -307,8 +323,23 @@ var absenceNS = new function() {
 	                selectHelper: true,
 	                editable: true,
 	                weekends: false,
-	                select: this.select
+	                select: this.select,
+	                eventClick: this.eventClick,
+	                eventDrop: this.eventDropOrResize,
+	                eventResize: this.eventDropOrResize
+
 	            });
+	        },
+	        eventDropOrResize: function(fcEvent) {
+	        	absenceNS.absences.get(fcEvent.id).save(
+	        			{
+	        				start: fcEvent.start.getTime(),
+	        				end: fcEvent.end ? fcEvent.end.getTime() : 0});
+	        },
+	        eventClick: function(fcEvent) {
+	            var absence = absenceNS.absences.get(fcEvent.id);
+	            var eventView = new EventView({el: $('#eventDialog'), model: absence});
+	            eventView.render();
 	        },
 	        addAll: function() {
 	          this.$el.fullCalendar('addEventSource', this.collection.toEvents());
