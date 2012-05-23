@@ -1,7 +1,11 @@
-Absence reporting Play application
+Absence reporting Play/Scala/Akka/backbone.js/FullCalendar application
 =====================================
-TestPage
-http://localhost:9000/wsTest
+Credits:
+FullCalendar high quality jQuery javascript calendar by Adam Shaw
+http://arshaw.com/fullcalendar/
+
+FullCalendar integrated with backbone.js with the help of Ben Teese's excellent blog post.
+http://blog.shinetech.com/2011/08/05/building-a-shared-calendar-with-backbone-js-and-fullcalendar-a-step-by-step-tutorial/
 
 CI
 http://build01.glodit.se:8081/job/absence/
