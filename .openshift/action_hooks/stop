@@ -62,4 +62,5 @@ if [[ -n `ps -A | grep java` ]]; then
 fi
 
 popd > /dev/null
+
 exit 0
