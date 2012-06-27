@@ -7,5 +7,5 @@ http://arshaw.com/fullcalendar/
 FullCalendar integrated with backbone.js with the help of Ben Teese's excellent blog post.
 http://blog.shinetech.com/2011/08/05/building-a-shared-calendar-with-backbone-js-and-fullcalendar-a-step-by-step-tutorial/
 
-CI
+CI-Server
 http://build01.glodit.se:8081/job/absence/
