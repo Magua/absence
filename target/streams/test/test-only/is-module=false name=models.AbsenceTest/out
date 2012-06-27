@@ -1,0 +1,11 @@
+[0m[[0minfo[0m] [0mAbsenceTest[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure simple date format works as expected[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure serialization and deserialisation does not break object[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure serialization works if optional id is missing[0m
+[0m[[0minfo[0m] [0m[32m+[0m verify absence crudf methods[0m
+[0m[[0minfo[0m] [0m [0m
+[0m[[0minfo[0m] [0mTotal for specification AbsenceTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 52 ms[0m[0m
+[0m[[0minfo[0m] [0m[34m4 examples, 0 failure, 0 error[0m[0m
+[0m[[0minfo[0m] [0m[0m

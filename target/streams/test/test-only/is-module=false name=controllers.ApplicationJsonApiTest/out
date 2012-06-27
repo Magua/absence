@@ -1,0 +1,11 @@
+[0m[[0minfo[0m] [0mApplicationJsonApiTest[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mAbsence CRUDF methods should[0m
+[0m[[0minfo[0m] [0m[32m+[0m work with correct json[0m
+[0m[[0minfo[0m] [0m[32m+[0m fail with incorrect json[0m
+[0m[[0minfo[0m] [0m [0m
+[0m[[0minfo[0m] [0m [0m
+[0m[[0minfo[0m] [0mTotal for specification ApplicationJsonApiTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 568 ms[0m[0m
+[0m[[0minfo[0m] [0m[34m2 examples, 0 failure, 0 error[0m[0m
+[0m[[0minfo[0m] [0m[0m

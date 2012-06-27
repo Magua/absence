@@ -1,0 +1,41 @@
+[0m[[0minfo[0m] [0mmodels.UserTest[0m
+[0m[[0minfo[0m] [0m[32m+[0m 'User(-1,Dolores Claiborn)' is equal to 'User(-1,Dolores Claiborn)'[0m
+[0m[[0minfo[0m] [0m[32m+[0m '-1' is equal to '-1'[0m
+[0m[[0minfo[0m] [0m[32m+[0m '2' is equal to '2'[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mTotal for test models.UserTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 1.256 seconds[0m[0m
+[0m[[0minfo[0m] [0m[34m3 tests, 0 failures, 0 errors[0m[0m
+[0m[[0minfo[0m] [0mmodels.AbsenceTest[0m
+[0m[[0minfo[0m] [0m[32m+[0m '2012-01-01T20:00:00Z' is equal to '2012-01-01T20:00:00Z'[0m
+[0m[[0minfo[0m] [0m[32m+[0m 'Absence(1234,432,Parental leave,1336465280108,1337070080108)' is equal to 'Absence(1234,432,Parental leave,1336465280108,1337070080108)'[0m
+[0m[[0minfo[0m] [0m[32m+[0m '-1' is equal to '-1'[0m
+[0m[[0minfo[0m] [0m[32m+[0m 'None' is equal to 'None'[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mTotal for test models.AbsenceTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 0.093 seconds[0m[0m
+[0m[[0minfo[0m] [0m[34m4 tests, 0 failures, 0 errors[0m[0m
+[0m[[0minfo[0m] [0mcontrollers.ApplicationJsonApiTest[0m
+[0m[[0minfo[0m] [0m[32m+[0m 'TODO' is equal to 'TODO'[0m
+[0m[[0minfo[0m] [0m[32m+[0m 'TODO' is equal to 'TODO'[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mTotal for test controllers.ApplicationJsonApiTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 0.614 seconds[0m[0m
+[0m[[0minfo[0m] [0m[34m2 tests, 0 failures, 0 errors[0m[0m
+[0m[[0minfo[0m] [0mmodels.ConnectedUsersTest[0m
+[0m[[0minfo[0m] [0m[32m+[0m '{"name":"ove","number":230}' is equal to '{"name":"ove","number":230}'[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mTotal for test models.ConnectedUsersTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 0.022 seconds[0m[0m
+[0m[[0minfo[0m] [0m[34m1 tests, 0 failures, 0 errors[0m[0m
+[0m[[0minfo[0m] [0mmodels.SprintTest[0m
+[0m[[0minfo[0m] [0m[32m+[0m '999' is equal to '999'[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0mTotal for test models.SprintTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 0.123 seconds[0m[0m
+[0m[[0minfo[0m] [0m[34m1 tests, 0 failures, 0 errors[0m[0m

@@ -1,0 +1,38 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           	controllers.Main.absence
+
+# WebSocket
+GET     /connect/:sessionId         	controllers.Main.connect(sessionId: String)
+GET     /comet/:sessionId         		controllers.Main.comet(sessionId: String)
+GET     /serverSentEvents/:sessionId	controllers.Main.serverSentEvents(sessionId: String)
+
+#JSON
+POST    	/user                   	controllers.UserController.create
+GET     	/user/:id               	controllers.UserController.read(id: Long)
+PUT     	/user		               	controllers.UserController.update
+DELETE  	/user/:id               	controllers.UserController.delete(id: Long)
+GET     	/user                   	controllers.UserController.findAll
+
+POST    	/absence                	controllers.AbsenceController.create
+GET     	/absence/:id            	controllers.AbsenceController.read(id: Long)
+PUT     	/absence					controllers.AbsenceController.update
+DELETE  	/absence/:id            	controllers.AbsenceController.delete(id: Long)
+GET			/absence					controllers.AbsenceController.findAll
+GET     	/absenceInSprint/:sprintId  controllers.AbsenceController.findInSprint(sprintId: Long)
+
+POST    	/sprint                 	controllers.SprintController.create
+GET     	/sprint/:id             	controllers.SprintController.read(id: Long)
+PUT     	/sprint             		controllers.SprintController.update
+DELETE  	/sprint/:id             	controllers.SprintController.delete(id: Long)
+GET     	/sprintCurrent          	controllers.SprintController.findCurrent
+
+GET       /view/current            controllers.ViewController.getCurrentWeek
+
+GET			/scroll						controllers.Main.scroll
+
+# Map static resources from the /public folder to the /assets URL path
+GET     	/assets/*file               controllers.Assets.at(path="/public", file)

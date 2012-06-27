@@ -1,0 +1,8 @@
+[0m[[0minfo[0m] [0mConnectedUsersTest[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure json messages with integers are stringified without quotations[0m
+[0m[[0minfo[0m] [0m [0m
+[0m[[0minfo[0m] [0mTotal for specification ConnectedUsersTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 3 ms[0m[0m
+[0m[[0minfo[0m] [0m[34m1 example, 0 failure, 0 error[0m[0m
+[0m[[0minfo[0m] [0m[0m

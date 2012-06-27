@@ -1,0 +1,10 @@
+[0m[[0minfo[0m] [0mUserTest[0m
+[0m[[0minfo[0m] [0m[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure serialization and deserialisation does not break object[0m
+[0m[[0minfo[0m] [0m[32m+[0m make sure serialization works if optional id is missing[0m
+[0m[[0minfo[0m] [0m[32m+[0m test crud methods[0m
+[0m[[0minfo[0m] [0m [0m
+[0m[[0minfo[0m] [0mTotal for specification UserTest[0m
+[0m[[0minfo[0m] [0m[34mFinished in 768 ms[0m[0m
+[0m[[0minfo[0m] [0m[34m3 examples, 0 failure, 0 error[0m[0m
+[0m[[0minfo[0m] [0m[0m

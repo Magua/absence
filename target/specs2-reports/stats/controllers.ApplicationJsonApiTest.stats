@@ -1,0 +1,26 @@
+<controllers.ApplicationJsonApiTest-stats timestamp="1336679440962"><stats expectations="2" examples="2" successes="2" time="1630"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336680165144"><stats expectations="2" examples="2" successes="2" time="507"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336681578748"><stats expectations="2" examples="2" successes="2" time="489"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336681633227"><stats expectations="2" examples="2" successes="2" time="1198"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336681858189"><stats expectations="2" examples="2" successes="2" time="664"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336681960689"><stats expectations="2" examples="2" successes="2" time="484"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336682622403"><stats expectations="2" examples="2" successes="2" time="490"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336682801746"><stats expectations="2" examples="2" successes="2" time="717"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336682843714"><stats expectations="2" examples="2" successes="2" time="1260"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336812417234"><stats expectations="2" examples="2" successes="2" time="507"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-results timestamp="1336812447204"><result location="controllers.ApplicationJsonApiTest (ApplicationJsonApiTest.scala:18)" id="-1954365271"><stats expectations="1" examples="1" errors="1" time="906"></stats></result>
+</controllers.ApplicationJsonApiTest-results>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336812447208"><stats expectations="2" successes="1" examples="2" errors="1" time="946"><trend><stats errors="1" successes="-1" time="1453"></stats></trend></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823051979"><stats expectations="2" examples="2" successes="2" time="559"><trend><stats errors="-1" successes="1" time="1505"></stats></trend></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823082961"><stats expectations="2" examples="2" successes="2" time="561"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823255596"><stats expectations="2" examples="2" successes="2" time="583"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823557911"><stats expectations="2" examples="2" successes="2" time="546"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823617768"><stats expectations="2" examples="2" successes="2" time="521"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823631407"><stats expectations="2" examples="2" successes="2" time="604"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1336823645821"><stats expectations="2" examples="2" successes="2" time="1248"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337029514566"><stats expectations="2" examples="2" successes="2" time="624"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337029537646"><stats expectations="2" examples="2" successes="2" time="1215"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337064608159"><stats expectations="2" examples="2" successes="2" time="722"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337065269782"><stats expectations="2" examples="2" successes="2" time="1343"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337068557876"><stats expectations="2" examples="2" successes="2" time="507"></stats></controllers.ApplicationJsonApiTest-stats>
+<controllers.ApplicationJsonApiTest-stats timestamp="1337070080797"><stats expectations="2" examples="2" successes="2" time="568"></stats></controllers.ApplicationJsonApiTest-stats>
