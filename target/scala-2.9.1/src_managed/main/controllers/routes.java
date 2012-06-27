@@ -1,6 +1,6 @@
 // @SOURCE:/Users/magnus/Projects/git/absence/conf/routes
-// @HASH:fe698f2315e86fb85d47aaccbae3561eef5a5d6d
-// @DATE:Thu May 10 21:50:19 CEST 2012
+// @HASH:eb4b6d6ae876c90e93d227d95d81c9d5b610bb5e
+// @DATE:Wed Jun 27 17:10:48 CEST 2012
 
 package controllers;
 

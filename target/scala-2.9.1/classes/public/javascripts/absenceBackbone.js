@@ -1,39 +1,17 @@
 var absenceNS = new function() {
 	/* Absence Model */
 	var Absence = Backbone.Model.extend({
-		/*validate: function(attrs) {
-			if (attrs.start > attrs.end) {
-				return {rc: 1001, message: "end must Not be before start"}
-			}
-			if (!users.get(attrs.userId)) {
-				return {rc: 1002, message: "user must exist"}
-			}
-		},*/
-		initialize: function() {
-//			this.on("error", function(model, error) {
-//				alert("Absence:" + JSON.stringify(model) + " " + JSON.stringify(error))
-//			})
-		},
-		startDate: function() {
-			new Date(start)
-		},
-		endDate: function() {
-			new Date(end)
-		},
+        toEvent: function() {
+        	return {
+	              "id": this.get("id"),
+	              "title": this.get("description"),
+	              "start": this.get("start") / 1000,
+	              "end": this.get("end") / 1000}
+        },
 		url: '/absence'
 	})
 	/* User Model */
 	var User = Backbone.Model.extend({
-		/*validate: function(attrs) {
-			if (attrs.name.length <= 1) {
-				return {rc: 1001, message: "Name must be at least two characters"}
-			}
-		},*/
-		initialize: function() {
-//			this.on("error", function(model, error) {
-//				alert("User:" + JSON.stringify(model) + " " + JSON.stringify(error))
-//			})
-		},
 		url: '/user'
 	})
 	
@@ -45,6 +23,13 @@ var absenceNS = new function() {
 
 	/* List of Absence models List[Absence] */
 	var Absences = Backbone.Collection.extend({
+        toEvents: function() {
+        	var events = []
+        	this.forEach(function(a) {
+        		events.push(a.toEvent())
+        	})
+        	return events
+        },
 		model : Absence,
 		url : '/absence'
 	})
@@ -64,7 +49,9 @@ var absenceNS = new function() {
 	var incommingAbsence = function(absence) {
 		var existingAbsence = absenceNS.absences.get(absence.id)
 		if (existingAbsence) {
-			existingAbsence.set({description: existingAbsence.name})
+			existingAbsence.set({description: absence.description,
+				start: absence.start,
+				end: absence.end})
 		} else {
 			absenceNS.absences.add(new Absence(absence))
 		}
@@ -135,47 +122,46 @@ var absenceNS = new function() {
 	}
 	Backbone.sync = function(crud, model, options) {
 
-		  var resp, url, json, method
+		var resp, url, json, method
 
-		  switch (crud) {
-		    case "create":  {
-		    	url = model.url
-		    	json = model
-		    	method = "POST"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "read": {
-		    	url = model.id ? model.url + "/" + model.id : model.url
-		    			json = "{}"
-		    	method = "GET"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "update":  {
-		    	url = model.url
-		    	json = model
-		    	method = "PUT"                       
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		    case "delete": {
-		    	url = model.url + "/" + model.id
-		    	json = "{}"
-		    	method = "DELETE"
-			  resp = sendMessage(url, json, method)
-		    	break
-		    }
-		  }
-
-		  
-		  if (resp.status == 200) {
-		    options.success(JSON.parse(resp.responseText))
-		  } else {
-		    options.error(resp);
-		  }
-		  
+		switch (crud) {
+			case "create": {
+				url = model.url
+				json = model
+				method = "POST"
+				resp = sendMessage(url, json, method)
+				break
+			}
+			case "read": {
+				url = model.id ? model.url + "/" + model.id : model.url
+				json = "{}"
+				method = "GET"
+				resp = sendMessage(url, json, method)
+				break
+			}
+			case "update": {
+				url = model.url
+				json = model
+				method = "PUT"
+				resp = sendMessage(url, json, method)
+				break
+			}
+			case "delete": {
+				url = model.url + "/" + model.id
+				json = "{}"
+				method = "DELETE"
+				resp = sendMessage(url, json, method)
+				break
+			}
 		}
+
+		if (resp.status == 200) {
+			options.success(JSON.parse(resp.responseText))
+		} else {
+			options.error(resp);
+		}
+
+	}
 	this.init = function(sessionId) {
 		var source = new EventSource('serverSentEvents/' + sessionId);
 		source.addEventListener('message', function(e) {
@@ -197,83 +183,54 @@ var absenceNS = new function() {
 		  }
 		}, false);
 
-		/* User View */
-		var UserView = Backbone.View.extend({
-			tagName : "li",
-			template: _.template($('#user-template').html()),
-			events : {
-				"click .liUserName"   : "edit",
-				"click .liUserDelete" : "delete"
-			},
-			initialize : function() {
-				this.model.bind('change', this.render, this);
-				this.model.bind('remove', this.remove, this);
-			},
-			render : function() {
-				this.$el.html(this.template(this.model.toJSON()));
-				return this;
-			},
-			edit : function() {
-				var newName = prompt("Please enter new name")
-				if (newName) {
-					this.model.set({name: newName})
-					this.model.save()
-				}
-			},
-			delete: function() {
-				this.model.destroy()
-			}
-		});
-		/* Absence View */
-		var AbsenceView = Backbone.View.extend({
-			tagName : "li",
-			template: _.template($('#absence-template').html()),
-			events : {
-				"click .liAbsenceDescription" : "edit",
-				"click .liAbsenceDelete" : "delete"
-			},
-			initialize : function() {
-				this.model.bind('change', this.render, this)
-				this.model.bind('remove', this.remove, this)
-			},
-			render : function() {
-				this.$el.html(this.template(this.model.toJSON()));
-				return this;
-			},
-			edit : function() {
-				var newDescription = prompt("Please enter new description for Absence")
-				if (newDescription) {
-					this.model.set({description: newDescription})
-					this.model.save()
-				}
-			},
-			delete: function() {
-				this.model.destroy()
-			}
-		});
 		var EventView = Backbone.View.extend({
+			initialize: function(){
+				_.bindAll(this);
+			},
 		    render: function() {
 		        this.$el.dialog({
 		            modal: true,
-		            title: 'New Event',
-		            buttons: {'Ok': this.save, 'Cancel': this.close}
+		            title: 'New/Edit Event',
+		            buttons: {'Ok': this.save, 'Cancel': this.close},
+		        	open: this.open
 		        });
 		 
 		        return this;
 		    },
+		    open: function() {
+		        this.$('#title').val(this.model.get('description'));
+		        this.$('#userId').val(this.model.get('userId'));
+		    },
 		    close: function() {
-		        this.$el.dialog('close');
+		    	this.$el.dialog('close');
 		    },
 		    save: function() {
-		    	this.model.set({'title': this.$('#title').val(), 'color': this.$('#color').val()});
-		    	this.collection.create(this.model, {success: this.close});
+		    	this.model.set({userId: 1, description: this.$('#title').val()}).save();
+		    	this.close();
+		    },
+		    destroy: function(event) {
+		        this.$el.fullCalendar('removeEvents', event.id);
 		    }
 		});
 
 		var EventsView = Backbone.View.extend({
 	        initialize: function(){
 	            this.collection.bind('reset', this.addAll, this);
+	            this.collection.bind('add', this.addOne, this);
+	            this.collection.bind('change', this.change, this);
+	            this.collection.bind('destroy', this.destroy, this);
 	        },
+	        change: function(absenceEvent) {
+	            var fcEvent = this.$el.fullCalendar('clientEvents', absenceEvent.get('id'))[0];
+	            fcEvent.title = absenceEvent.get('description');
+	            // fcEvent.color = "pink"; // TODO
+	            fcEvent.start = absenceEvent.get('start') / 1000;
+	            fcEvent.end = absenceEvent.get('end') > 0 ? absenceEvent.get('end') / 1000 : 0;
+	            this.$el.fullCalendar('updateEvent', fcEvent);
+	        },
+		    addOne: function(absence) {
+		        this.$el.fullCalendar('renderEvent', absence.toEvent());
+		    },
 	        render: function() {
 	            this.$el.fullCalendar({
 	                header: {
@@ -286,85 +243,39 @@ var absenceNS = new function() {
 	                selectHelper: true,
 	                editable: true,
 	                weekends: false,
-	                select: this.select
+	                select: this.select,
+	                eventClick: this.eventClick,
+	                eventDrop: this.eventDropOrResize,
+	                eventResize: this.eventDropOrResize,
+	                events: {
+	                    url: "http://www.google.com/calendar/feeds/en.swedish%23holiday%40group.v.calendar.google.com/public/basic",
+	                    color: 'red'   // an option!
+	                    //textColor: 'black' // an option!
+	                }
+
 	            });
 	        },
-	        addAll: function(){
-		        var v = [{
-		            "title":"Event1",
-		            "start":new Date(),
-		            "allDay":true
-		        }]
-		          this.collection.forEach(function(a) {
-		            v.push({
-		              "id":a.get("id"),
-		              "title":a.get("description"),
-		              "start":a.get("start")/1000,
-		              "end":a.get("end")/1000})
-		          })
-	        		this.$el.fullCalendar('addEventSource', v);
+			eventDropOrResize : function(fcEvent) {
+				absenceNS.absences.get(fcEvent.id).save({
+					start : fcEvent.start.getTime(),
+					end : fcEvent.end ? fcEvent.end.getTime() : 0
+				});
+			},
+	        eventClick: function(fcEvent) {
+	            var absence = absenceNS.absences.get(fcEvent.id);
+	            var eventView = new EventView({el: $('#eventDialog'), model: absence});
+	            eventView.render();
+	        },
+	        addAll: function() {
+	          this.$el.fullCalendar('addEventSource', this.collection.toEvents());
 	        },
 	        select: function(startDate, endDate) {
-	        	new EventView().render();
-   	            var eventView = new EventView();
-	            eventView.collection = this.collection;
-	            eventView.model = new Event({start: startDate, end: endDate, el: $('#eventDialog')});
+   	            var eventView = new EventView({el: $('#eventDialog'),
+   	            	model: new Absence({start: startDate.getTime(), end: endDate.getTime()})});
 	            eventView.render();
 
 	        }
 	    });
-		
-		this.users.on("add", function(user) {
-			var view = new UserView({
-				model : user
-			});
-			$("#user-list").append(view.render().el);
-		})
-
-		this.absences.on("add", function(absence) {
-			var view = new AbsenceView({
-				model : absence
-			});
-			$("#absence-list").append(view.render().el);
-		})
-
-		$("#newUserRequestButton").click(function() {
-			var u = new User({name: $("#newUserRequestName").val()})
-			u.save()
-			absenceNS.users.add(u)
-		});
-		$("#allUsersRequestButton").click(function() {
-			var allUsersRequest = {}
-			var endpoint = "/user"
-			sendMessage(endpoint, allUsersRequest, "GET")
-		});
-		$("#allAbsenceRequestButton").click(function() {
-			var allAbsenceRequest = {}
-			var endpoint = "/absence"
-			sendMessage(endpoint, allAbsenceRequest, "GET")
-		});
-		$("#newAbsenceRequestButton").click(function() {
-			var a = new Absence({
-				userId : parseInt($("#newAbsenceRequestUserId").val()),
-				description : $("#newAbsenceRequestDescription").val(),
-				start : parseInt($("#newAbsenceRequestStart").val()),
-				end : parseInt($("#newAbsenceRequestEnd").val())
-			})
-			a.save()
-			absenceNS.absences.add(a)
-		});
-		$("#currentWeekRequestButton").click(function() {
-		    var currentWeekRequest = {}
-		    var endpoint = "/view/current"
-		    sendMessage(endpoint, currentWeekRequest, "GET")
-		});
-//		$('#calendar').fullCalendar({
-//			weekends: false // will hide Saturdays and Sundays
-//		})
-//    
-//		$('#calendar').fullCalendar({
-//			// put your options and callbacks here
-//		})
     
 		new EventsView({el: $("#calendar"), collection: this.absences}).render();
 		this.absences.fetch();

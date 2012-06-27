@@ -7,7 +7,9 @@ GET     /                           	controllers.Main.absence
 
 # WebSocket
 GET     /connect/:sessionId         	controllers.Main.connect(sessionId: String)
+# Comet
 GET     /comet/:sessionId         		controllers.Main.comet(sessionId: String)
+# Server Sent Events
 GET     /serverSentEvents/:sessionId	controllers.Main.serverSentEvents(sessionId: String)
 
 #JSON
