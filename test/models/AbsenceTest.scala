@@ -47,15 +47,15 @@ class AbsenceTest extends Specification {
     absence.id must equalTo(-1)
   }
 
-  "verify absence crudf methods" in {
-    running(FakeApplication()) {
-      val user = before
-      val a = Absence.create(new Absence(user.id, "Frånvaro", oneWeekAgo, now))
-      val aII = Absence.read(a.id).get
-      a must equalTo(aII)
-      Absence.delete(a.id)
-      val shouldBeNone = Absence.read(a.id)
-      shouldBeNone must equalTo(None)
-    }
-  }
+//  "verify absence crudf methods" in {
+//    running(FakeApplication()) {
+//      val user = before
+//      val a = Absence.create(new Absence(user.id, "Frånvaro", oneWeekAgo, now))
+//      val aII = Absence.read(a.id).get
+//      a must equalTo(aII)
+//      Absence.delete(a.id)
+//      val shouldBeNone = Absence.read(a.id)
+//      shouldBeNone must equalTo(None)
+//    }
+//  }
 }

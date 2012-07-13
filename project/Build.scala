@@ -8,12 +8,13 @@ object ApplicationBuild extends Build {
     val appVersion      = "1.0-SNAPSHOT"
 
     val appDependencies = Seq(
-    		"postgresql" % "postgresql" % "9.1-901-1.jdbc4",
-    		"net.liftweb" % "lift-json_2.9.1" % "2.4"
+    		"net.liftweb" % "lift-json_2.9.1" % "2.4",
+    		"se.radley" %% "play-plugins-salat" % "1.0.7"
 	)
 
     val main = PlayProject(appName, appVersion, appDependencies, mainLang = SCALA).settings(
-      // Add your own project settings here      
+    	routesImport += "se.radley.plugin.salat.Binders._",
+  		templatesImport += "org.bson.types.ObjectId"
     )
     
 

@@ -14,9 +14,9 @@ GET     /serverSentEvents/:sessionId	controllers.Main.serverSentEvents(sessionId
 
 #JSON
 POST    	/user                   	controllers.UserController.create
-GET     	/user/:id               	controllers.UserController.read(id: Long)
+GET     	/user/:id               	controllers.UserController.read(id: String)
 PUT     	/user		               	controllers.UserController.update
-DELETE  	/user/:id               	controllers.UserController.delete(id: Long)
+DELETE  	/user/:id               	controllers.UserController.delete(id: String)
 GET     	/user                   	controllers.UserController.findAll
 
 POST    	/absence                	controllers.AbsenceController.create

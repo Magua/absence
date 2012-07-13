@@ -1,15 +1,26 @@
 package models
-import play.api.libs.concurrent.Promise
-import akka.actor._
-import akka.util.duration._
-import play.api._
-import play.api.libs.iteratee._
-import play.api.libs.concurrent._
-import akka.util.Timeout
-import akka.pattern.ask
+
 import scala.collection.mutable.StringBuilder
+
+import com.mongodb.casbah.Imports.ObjectId
+
+import akka.actor.actorRef2Scala
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.actor.Props
+import akka.pattern.ask
+import akka.util.duration.intToDurationInt
+import akka.util.Timeout
+import net.liftweb.json.Serialization.write
 import play.api.Play.current
-import net.liftweb.json.Serialization._
+import play.api.libs.concurrent.akkaToPlay
+import play.api.libs.concurrent.Promise
+import play.api.libs.concurrent.Akka
+import play.api.libs.iteratee.Iteratee
+import play.api.libs.iteratee.Enumerator
+import play.api.libs.iteratee.PushEnumerator
+import play.api.Logger
+
 object Beacon {
   
   def apply(connectedUsersActor: ActorRef) {
@@ -202,7 +213,7 @@ case class UpdateAbsence(sessionId: String, abcense: Absence)
 case class DeleteAbsence(sessionId: String, id: Long)
 case class CreateUser(sessionId: String, u: User)
 case class UpdateUser(sessionId: String, u: User)
-case class DeleteUser(sessionId: String, id: Long)
+case class DeleteUser(sessionId: String, id: ObjectId)
 case class Quit(sessionId: String)
 case class NotifyJoin(sessionId: String)
 case class CurrentWeek(sessionId: String)

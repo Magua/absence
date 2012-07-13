@@ -1,11 +1,18 @@
 package controllers
 
-import play.api._
-import play.api.mvc._
-import models._
-import Play.current
-import net.liftweb.json.Serialization
-import controllers.JsonUtil._
+import com.mongodb.casbah.Imports.ObjectId
+import controllers.JsonUtil.jsonOk
+import controllers.JsonUtil.readJson
+import controllers.JsonUtil.uuid
+import models.ConnectedUsers
+import models.CreateUser
+import models.DeleteUser
+import models.FindAllUsers
+import models.UpdateUser
+import models.User
+import play.api.mvc.Action
+import play.api.mvc.Controller
+
 
 object UserController extends Controller {
   
@@ -18,7 +25,7 @@ object UserController extends Controller {
     }
   }
   
-  def read(id: Long) = TODO
+  def read(id: String) = TODO
   
   def update = Action { implicit request =>
     Async {
@@ -29,9 +36,9 @@ object UserController extends Controller {
     }
   }
   
-  def delete(id: Long) = Action { implicit request =>
+  def delete(id: String) = Action { implicit request =>
     Async {
-      ConnectedUsers.send(DeleteUser(uuid, id)).map { response =>
+      ConnectedUsers.send(DeleteUser(uuid, new ObjectId(id))).map { response =>
         jsonOk(response)
       }
     }
