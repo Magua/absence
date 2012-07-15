@@ -1,13 +1,9 @@
 package models
 
-import org.specs2.mutable._
-import org.specs2.runner
-import play.api.test._
-import play.api.test.Helpers._
-import play.api.mvc.AnyContentAsJson
-import play.api.libs.json._
-import play.api._
-import play.api.mvc._
+import org.specs2.mutable.Specification
+import play.api.test.Helpers.running
+import play.api.test.FakeApplication
+import com.mongodb.casbah.Imports._
 import net.liftweb.json.Serialization
 
 class UserTest extends Specification {
@@ -15,18 +11,18 @@ class UserTest extends Specification {
   implicit val formats = net.liftweb.json.DefaultFormats
 
   "make sure serialization and deserialisation does not break object" in {
-//    val u = new User("Dolores Claiborn")
+//    val u = User(new ObjectId, "dallas")
 //
-//    val jsonString = Serialization.write[User](u)
+//    val jsonString = User.toJson(u).toString()
 //    println(jsonString)
-//    val uII = Serialization.read[User](jsonString)
+//    val uII = User.fromJSON(jsonString)
 //    u must equalTo(uII)
   }
 
   "make sure serialization works if optional id is missing" in {
-//    val jsonString = ("""{"name":"Dolores"}""")
-//    val user = Serialization.read[User](jsonString)
-//    user.name must equalTo("Dolores")
+    val jsonString = ("""{"name":"Dolores"}""")
+    val user = Serialization.read[User](jsonString)
+    user.name must equalTo("Dolores")
   }
   
   "test crud methods" in {
@@ -47,7 +43,7 @@ class UserTest extends Specification {
       val size = User.all().size
       size must equalTo(initialSize + 1)
       
-      val effectedDeleteRows = User.delete(updatedUser.id)
+      User.delete(updatedUser.id)
       
       val newSize = User.all().size
       newSize must equalTo(initialSize)
