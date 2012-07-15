@@ -18,6 +18,7 @@ object User extends ModelCompanion[User, ObjectId] {
   def create(u: User): User = {
     val id = dao.insert(u).get
     new User(id, u.name)
+    
   }
   def read(id: ObjectId): Option[User] = dao.findOneById(id)
   def update(u: User): Int = {

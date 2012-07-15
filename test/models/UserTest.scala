@@ -5,18 +5,18 @@ import play.api.test.Helpers.running
 import play.api.test.FakeApplication
 import com.mongodb.casbah.Imports._
 import net.liftweb.json.Serialization
+import net.liftweb.json.DefaultFormats
 
 class UserTest extends Specification {
 
-  implicit val formats = net.liftweb.json.DefaultFormats
+  implicit val formats = DefaultFormats + new ObjectIdSerializer 
 
   "make sure serialization and deserialisation does not break object" in {
-//    val u = User(new ObjectId, "dallas")
-//
-//    val jsonString = User.toJson(u).toString()
-//    println(jsonString)
-//    val uII = User.fromJSON(jsonString)
-//    u must equalTo(uII)
+    val u = User(new ObjectId, "dallas")
+    val jsonString = Serialization.write[User](u)
+    println(jsonString)
+    val uII = Serialization.read[User](jsonString)
+    u must equalTo(uII)
   }
 
   "make sure serialization works if optional id is missing" in {
