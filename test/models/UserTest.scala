@@ -9,7 +9,7 @@ import net.liftweb.json.DefaultFormats
 
 class UserTest extends Specification {
 
-  implicit val formats = DefaultFormats + new ObjectIdSerializer 
+  implicit val formats = DefaultFormats + new ObjectIdSerializer
 
   "make sure serialization and deserialisation does not break object" in {
     val u = User(new ObjectId, "dallas")

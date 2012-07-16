@@ -1,9 +1,7 @@
 package models
 
 import scala.collection.mutable.StringBuilder
-
 import com.mongodb.casbah.Imports.ObjectId
-
 import akka.actor.actorRef2Scala
 import akka.actor.Actor
 import akka.actor.ActorRef
@@ -20,6 +18,7 @@ import play.api.libs.iteratee.Iteratee
 import play.api.libs.iteratee.Enumerator
 import play.api.libs.iteratee.PushEnumerator
 import play.api.Logger
+import net.liftweb.json.DefaultFormats
 
 object Beacon {
   
@@ -93,7 +92,7 @@ object ConnectedUsers {
 
 class ConnectedUsers extends Actor {
 
-  implicit val formats = net.liftweb.json.DefaultFormats
+  implicit val formats = DefaultFormats + new ObjectIdSerializer
 
   var users = Map.empty[String, PushEnumerator[String]]
   def receive = {
@@ -210,7 +209,7 @@ case class FindAllAbsence(sessionId: String)
 case class FindAllUsers(sessionId: String)
 case class CreateAbsence(sessionId: String, abcense: Absence)
 case class UpdateAbsence(sessionId: String, abcense: Absence)
-case class DeleteAbsence(sessionId: String, id: Long)
+case class DeleteAbsence(sessionId: String, id: ObjectId)
 case class CreateUser(sessionId: String, u: User)
 case class UpdateUser(sessionId: String, u: User)
 case class DeleteUser(sessionId: String, id: ObjectId)

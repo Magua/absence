@@ -20,9 +20,9 @@ DELETE  	/user/:id               	controllers.UserController.delete(id: String)
 GET     	/user                   	controllers.UserController.findAll
 
 POST    	/absence                	controllers.AbsenceController.create
-GET     	/absence/:id            	controllers.AbsenceController.read(id: Long)
+GET     	/absence/:id            	controllers.AbsenceController.read(id: String)
 PUT     	/absence					controllers.AbsenceController.update
-DELETE  	/absence/:id            	controllers.AbsenceController.delete(id: Long)
+DELETE  	/absence/:id            	controllers.AbsenceController.delete(id: String)
 GET			/absence					controllers.AbsenceController.findAll
 GET     	/absenceInSprint/:sprintId  controllers.AbsenceController.findInSprint(sprintId: Long)
 

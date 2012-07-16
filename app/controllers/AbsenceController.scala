@@ -7,6 +7,7 @@ import Play.current
 import models.UpdateUser
 import controllers.JsonUtil._
 import net.liftweb.json.Serialization
+import org.bson.types.ObjectId
 
 object AbsenceController extends Controller {
 
@@ -19,7 +20,7 @@ object AbsenceController extends Controller {
     }
   }
   
-  def read(id: Long) = TODO
+  def read(id: String) = TODO
   
   def update = Action { implicit request =>
     Async {
@@ -30,9 +31,9 @@ object AbsenceController extends Controller {
     }
   }
   
-  def delete(id: Long) = Action { implicit request =>
+  def delete(id: String) = Action { implicit request =>
     Async {
-      ConnectedUsers.send(DeleteAbsence(uuid, id)).map { response =>
+      ConnectedUsers.send(DeleteAbsence(uuid, new ObjectId(id))).map { response =>
         jsonOk(response)
       }
     }

@@ -5,6 +5,8 @@ import net.liftweb.json.Serialization
 import models.Absence
 import org.codehaus.jackson.annotate.JsonMethod
 import models.ConnectedUsers
+import net.liftweb.json.DefaultFormats
+import models.ObjectIdSerializer
 
 object JsonUtil {
   def jsonOk(): PlainResult = jsonMessage(0, "Ok")
@@ -16,7 +18,7 @@ object JsonUtil {
     Results.InternalServerError("""{"rc":%1$s,"message":"%2$s"}""".format(rc, message)).as("application/json")
   }
   def readJson[T: Manifest](request: Request[play.api.mvc.AnyContent]): T = {
-    implicit val formats = net.liftweb.json.DefaultFormats
+    implicit val formats = DefaultFormats + new ObjectIdSerializer
     val jsonString = request.body.asJson.getOrElse(throw new RuntimeException("Unable to read request.body.asJson")).toString()
     try {
       Serialization.read[T](jsonString)

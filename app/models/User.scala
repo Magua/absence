@@ -17,8 +17,7 @@ object User extends ModelCompanion[User, ObjectId] {
   val dao = new SalatDAO[User, ObjectId](collection = collection) {}
   def create(u: User): User = {
     val id = dao.insert(u).get
-    new User(id, u.name)
-    
+    u.copy(id = id)
   }
   def read(id: ObjectId): Option[User] = dao.findOneById(id)
   def update(u: User): Int = {
@@ -26,8 +25,8 @@ object User extends ModelCompanion[User, ObjectId] {
     1
   }
   def all(): List[User] = collection.toList.map(grater[User].asObject(_))
-  def delete(id: ObjectId): Long = {
+  def delete(id: ObjectId): Int = {
     dao.removeById(id)
-    1L
+    1
   }
 }
