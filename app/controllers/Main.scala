@@ -55,7 +55,6 @@ object Main extends Controller {
     val absencesJsonString = Serialization.write(Absence.all())
     Ok(views.html.absence(webSocketPort, sessionId, usersJsonString, absencesJsonString)).withSession(request.session + ("uuid" -> sessionId))
   }
-  def scroll() = Action { Ok(views.html.scroll()) }
   def connect(sessionId: String) = WebSocket.async[String] { request =>
     println("connect ws, sessionId:" + sessionId)
     ConnectedUsers.add(sessionId)
