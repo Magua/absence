@@ -19,7 +19,7 @@ object scroll extends BaseScalaTemplate[play.api.templates.Html,Format[play.api.
     def apply():play.api.templates.Html = {
         _display_ {
 
-Seq(_display_(Seq(/*1.2*/main("Scroll")/*1.16*/ {_display_(Seq(format.raw/*1.18*/("""
+Seq[Any](_display_(Seq[Any](/*1.2*/main("Scroll")/*1.16*/ {_display_(Seq[Any](format.raw/*1.18*/("""
 <style type="text/css">
 	#aCalendar
 	"""),format.raw("""{"""),format.raw/*4.3*/("""
@@ -115,10 +115,10 @@ Dolores
 }
                 /*
                     -- GENERATED --
-                    DATE: Thu May 10 21:50:19 CEST 2012
-                    SOURCE: /Users/magnus/Projects/git/absence/app/views/scroll.scala.html
+                    DATE: Tue Jul 17 23:35:49 CEST 2012
+                    SOURCE: /Users/magnus/Projects/playdo/absence/app/views/scroll.scala.html
                     HASH: 56d6fa7988b9ecb7a4826972477bb264bbe802df
-                    MATRIX: 569->1|591->15|625->17|709->56|809->111|895->151|1387->597|1455->619|1557->675|1650->722|2142->1168|2261->1240|2366->1279|2480->1327|2530->1331
+                    MATRIX: 579->1|601->15|640->17|724->56|824->111|910->151|1402->597|1470->619|1572->675|1665->722|2157->1168|2276->1240|2381->1279|2495->1327|2545->1331
                     LINES: 22->1|22->1|22->1|25->4|29->8|32->11|45->24|47->26|51->30|54->33|67->46|70->49|71->50|72->51|73->52
                     -- GENERATED --
                 */

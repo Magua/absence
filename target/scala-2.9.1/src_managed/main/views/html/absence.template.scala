@@ -58,8 +58,8 @@ $(function() """),format.raw("""{"""),format.raw/*4.15*/("""
 }
                 /*
                     -- GENERATED --
-                    DATE: Wed Jun 27 17:10:48 CEST 2012
-                    SOURCE: /Users/magnus/Projects/git/absence/app/views/absence.scala.html
+                    DATE: Tue Jul 17 23:35:48 CEST 2012
+                    SOURCE: /Users/magnus/Projects/playdo/absence/app/views/absence.scala.html
                     HASH: 40bac383814945d0b27c3e5faeb6f0fb9ddf354c
                     MATRIX: 528->1|680->76|716->78|739->93|778->95|887->158|941->177|971->186|1031->211|1063->222|1125->249|1160->263|1208->266
                     LINES: 19->1|22->1|23->2|23->2|23->2|25->4|26->5|26->5|27->6|27->6|28->7|28->7|29->8
